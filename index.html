@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>For Oluchi</title>
+
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext x='50' y='72' font-size='72' text-anchor='middle' fill='%23c9a9d4'%3E%E2%9C%A6%3C/text%3E%3C/svg%3E" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+
+    <style>
+        /* =========================================================
+           BASE
+           ========================================================= */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-1: #0c0a12;
+            --bg-2: #17121d;
+            --ink: #e7e1ee;
+            --ink-soft: #c8c0d4;
+            --ink-muted: #8a8299;
+            --accent: #c9a9d4;
+            --rule: rgba(201, 169, 212, 0.14);
+        }
+
+        html, body { min-height: 100%; }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 60px 20px;
+            font-family: 'Lora', Georgia, serif;
+            background: var(--bg-1);
+            color: var(--ink);
+            position: relative;
+            overflow-x: hidden;
+            line-height: 1.9;
+        }
+
+        /* =========================================================
+           BACKGROUND
+           ========================================================= */
+        .bg-glow {
+            position: fixed;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+            filter: blur(90px);
+            will-change: transform;
+            transition: transform 0.6s cubic-bezier(0.2, 0.7, 0.3, 1);
+        }
+        .bg-glow-1 {
+            top: -10%; left: -5%;
+            width: 55vmax; height: 55vmax;
+            background: radial-gradient(circle, rgba(150, 110, 190, 0.14), transparent 65%);
+            transform: translate(var(--mx, 0px), var(--my, 0px));
+        }
+        .bg-glow-2 {
+            bottom: -15%; right: -10%;
+            width: 60vmax; height: 60vmax;
+            background: radial-gradient(circle, rgba(190, 120, 170, 0.10), transparent 65%);
+            transform: translate(calc(var(--mx, 0px) * -1), calc(var(--my, 0px) * -1));
+        }
+
+        .bg-beam {
+            position: fixed;
+            top: 0; left: 50%;
+            transform: translateX(-50%);
+            width: min(680px, 100vw);
+            height: 100%;
+            background: linear-gradient(180deg,
+                transparent 0%,
+                rgba(200, 160, 220, 0.05) 35%,
+                rgba(200, 160, 220, 0.03) 65%,
+                transparent 100%);
+            pointer-events: none;
+            z-index: 1;
+            filter: blur(50px);
+        }
+
+        .dust {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+        .dust span {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: rgba(220, 190, 240, 0.55);
+            border-radius: 50%;
+            box-shadow: 0 0 6px rgba(220, 190, 240, 0.45);
+            opacity: 0;
+            animation: drift linear infinite;
+            will-change: transform, opacity;
+        }
+        @keyframes drift {
+            0%   { transform: translateY(0) translateX(0); opacity: 0; }
+            12%  { opacity: 0.6; }
+            88%  { opacity: 0.4; }
+            100% { transform: translateY(-110vh) translateX(28px); opacity: 0; }
+        }
+
+        /* =========================================================
+           CARD
+           ========================================================= */
+        .card {
+            position: relative;
+            z-index: 2;
+            max-width: 620px;
+            width: 100%;
+            padding: 76px 60px 58px 60px;
+            background:
+                linear-gradient(165deg,
+                    rgba(38, 30, 48, 0.62) 0%,
+                    rgba(23, 18, 29, 0.78) 100%);
+            border: 1px solid rgba(201, 169, 212, 0.13);
+            border-radius: 26px;
+            backdrop-filter: blur(24px) saturate(1.2);
+            -webkit-backdrop-filter: blur(24px) saturate(1.2);
+            box-shadow:
+                0 40px 100px rgba(0, 0, 0, 0.55),
+                0 0 80px rgba(150, 110, 190, 0.07),
+                inset 0 1px 0 rgba(255, 255, 255, 0.045);
+            animation: cardIn 1.5s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+        }
+        @keyframes cardIn {
+            from { opacity: 0; transform: translateY(26px) scale(0.985); filter: blur(8px); }
+            to   { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+        }
+        .card::before {
+            content: '';
+            position: absolute;
+            top: -1px; left: 50%;
+            transform: translateX(-50%) scaleX(0);
+            transform-origin: center;
+            width: 160px; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(201, 169, 212, 0.75), transparent);
+            border-radius: 1px;
+            animation: drawAccent 1.6s cubic-bezier(0.2, 0.7, 0.3, 1) 0.6s forwards;
+        }
+        @keyframes drawAccent { to { transform: translateX(-50%) scaleX(1); } }
+
+        /* =========================================================
+           ORNAMENT
+           ========================================================= */
+        .ornament {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 40px;
+        }
+        .ornament .line {
+            height: 1px; width: 56px;
+            background: linear-gradient(90deg, transparent, rgba(201, 169, 212, 0.55), transparent);
+            transform: scaleX(0);
+        }
+        .ornament .line.left  { transform-origin: right center; animation: drawLine 1.1s cubic-bezier(0.2, 0.7, 0.3, 1) 0.9s forwards; }
+        .ornament .line.right { transform-origin: left center;  animation: drawLine 1.1s cubic-bezier(0.2, 0.7, 0.3, 1) 0.9s forwards; }
+        @keyframes drawLine { to { transform: scaleX(1); } }
+        .ornament .star {
+            color: var(--accent);
+            font-size: 0.9rem;
+            letter-spacing: 3px;
+            opacity: 0;
+            animation: starIn 0.9s ease 1.3s forwards,
+                       starBreathe 4.5s ease-in-out 2.2s infinite;
+        }
+        @keyframes starIn { to { opacity: 1; } }
+        @keyframes starBreathe {
+            0%, 100% { text-shadow: 0 0 6px rgba(201, 169, 212, 0.3); }
+            50%      { text-shadow: 0 0 18px rgba(201, 169, 212, 0.7); }
+        }
+
+        /* =========================================================
+           STATES — lock / letter / after
+           ========================================================= */
+        .state { display: none; }
+        .state.active { display: block; }
+
+        /* =========================================================
+           STATE 1: COUNTDOWN LOCK
+           ========================================================= */
+        .lock-eyebrow {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 1rem;
+            font-style: italic;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--ink-muted);
+            text-align: center;
+            margin-bottom: 14px;
+            opacity: 0;
+            animation: softIn 1.2s ease 1.4s forwards;
+        }
+
+        .lock-title {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 2rem;
+            font-weight: 500;
+            font-style: italic;
+            letter-spacing: 1.5px;
+            color: var(--ink);
+            text-align: center;
+            line-height: 1.35;
+            margin-bottom: 44px;
+            opacity: 0;
+            animation: softIn 1.2s ease 1.6s forwards;
+        }
+
+        .countdown {
+            display: flex;
+            justify-content: center;
+            gap: 18px;
+            margin-bottom: 44px;
+            opacity: 0;
+            animation: softIn 1.4s ease 1.9s forwards;
+        }
+        .countdown .unit {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 78px;
+            padding: 18px 6px 14px 6px;
+            border: 1px solid rgba(201, 169, 212, 0.15);
+            border-radius: 16px;
+            background: rgba(30, 22, 42, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+        .countdown .unit::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 50%;
+            transform: translateX(-50%);
+            width: 40px; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(201, 169, 212, 0.5), transparent);
+        }
+        .countdown .num {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 2.6rem;
+            font-weight: 500;
+            letter-spacing: 1px;
+            color: var(--ink);
+            line-height: 1;
+            font-variant-numeric: tabular-nums;
+            text-shadow: 0 0 24px rgba(201, 169, 212, 0.25);
+            transition: opacity 0.25s ease;
+        }
+        .countdown .label {
+            font-size: 0.6rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--ink-muted);
+            margin-top: 10px;
+        }
+
+        .lock-note {
+            text-align: center;
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 1.15rem;
+            font-style: italic;
+            letter-spacing: 1px;
+            color: var(--ink-soft);
+            line-height: 1.8;
+            opacity: 0;
+            animation: softIn 1.2s ease 2.2s forwards;
+        }
+        .lock-note .heart {
+            display: block;
+            margin-top: 18px;
+            font-style: normal;
+            font-size: 1.1rem;
+            color: var(--accent);
+            opacity: 0.7;
+        }
+
+        /* =========================================================
+           STATE 2: LETTER
+           ========================================================= */
+        .letter > * {
+            opacity: 0;
+            transform: translateY(14px);
+            animation: reveal 1.1s cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
+        }
+        @keyframes reveal { to { opacity: 1; transform: translateY(0); } }
+
+        .letter > *:nth-child(1)  { animation-delay: 0.5s; }
+        .letter > *:nth-child(2)  { animation-delay: 0.8s; }
+        .letter > *:nth-child(3)  { animation-delay: 1.1s; }
+        .letter > *:nth-child(4)  { animation-delay: 1.4s; }
+        .letter > *:nth-child(5)  { animation-delay: 1.7s; }
+        .letter > *:nth-child(6)  { animation-delay: 2.0s; }
+        .letter > *:nth-child(7)  { animation-delay: 2.3s; }
+        .letter > *:nth-child(8)  { animation-delay: 2.6s; }
+        .letter > *:nth-child(9)  { animation-delay: 2.9s; }
+        .letter > *:nth-child(10) { animation-delay: 3.2s; }
+        .letter > *:nth-child(11) { animation-delay: 3.5s; }
+        .letter > *:nth-child(12) { animation-delay: 3.8s; }
+        .letter > *:nth-child(13) { animation-delay: 4.1s; }
+
+        .to {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 2rem;
+            font-weight: 500;
+            font-style: italic;
+            letter-spacing: 1.5px;
+            color: var(--ink);
+            text-align: center;
+            margin-bottom: 36px;
+        }
+
+        .opening {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 1.6rem;
+            font-style: italic;
+            letter-spacing: 2px;
+            color: var(--ink);
+            text-align: center;
+            margin-bottom: 42px;
+            padding-bottom: 42px;
+            position: relative;
+        }
+        .opening::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 50%;
+            transform: translateX(-50%);
+            width: 40px; height: 1px;
+            background: rgba(201, 169, 212, 0.3);
+        }
+
+        .letter p {
+            font-size: 1.08rem;
+            line-height: 2;
+            color: var(--ink-soft);
+            margin-bottom: 24px;
+            letter-spacing: 0.2px;
+        }
+
+        .letter .strong {
+            color: var(--ink);
+            font-weight: 500;
+            position: relative;
+            padding-left: 22px;
+            margin-bottom: 30px;
+        }
+        .letter .strong::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.55em;
+            bottom: 0.55em;
+            width: 2px;
+            background: linear-gradient(180deg, transparent, rgba(201, 169, 212, 0.65), transparent);
+            border-radius: 2px;
+        }
+
+        .closing {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 1.35rem;
+            font-style: italic;
+            letter-spacing: 1px;
+            color: var(--ink);
+            text-align: center;
+            margin-top: 44px;
+            margin-bottom: 12px;
+            position: relative;
+            padding-top: 34px;
+        }
+        .closing::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 50%;
+            transform: translateX(-50%);
+            width: 32px; height: 1px;
+            background: rgba(201, 169, 212, 0.35);
+        }
+
+        .sig {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 1.05rem;
+            font-style: italic;
+            letter-spacing: 1.5px;
+            color: var(--ink-muted);
+            text-align: right;
+            margin-top: 20px;
+        }
+
+        /* =========================================================
+           STATE 3: AFTER
+           ========================================================= */
+        .after > * {
+            opacity: 0;
+            transform: translateY(14px);
+            animation: reveal 1.1s cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
+        }
+        .after > *:nth-child(1) { animation-delay: 0.5s; }
+        .after > *:nth-child(2) { animation-delay: 0.9s; }
+        .after > *:nth-child(3) { animation-delay: 1.3s; }
+        .after > *:nth-child(4) { animation-delay: 1.7s; }
+
+        .after-title {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 1.85rem;
+            font-style: italic;
+            letter-spacing: 1.5px;
+            color: var(--ink);
+            text-align: center;
+            margin-bottom: 36px;
+            line-height: 1.4;
+        }
+        .after p {
+            font-size: 1.08rem;
+            line-height: 2;
+            color: var(--ink-soft);
+            text-align: center;
+            margin-bottom: 22px;
+        }
+        .after .final-sig {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 1.05rem;
+            font-style: italic;
+            letter-spacing: 1.5px;
+            color: var(--ink-muted);
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(201, 169, 212, 0.1);
+        }
+
+        @keyframes softIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* =========================================================
+           RESPONSIVE
+           ========================================================= */
+        @media (max-width: 600px) {
+            body { padding: 34px 14px; }
+            .card { padding: 52px 26px 42px 26px; border-radius: 22px; }
+            .to { font-size: 1.7rem; margin-bottom: 28px; }
+            .opening { font-size: 1.35rem; margin-bottom: 32px; padding-bottom: 32px; }
+            .letter p { font-size: 1rem; line-height: 1.95; margin-bottom: 20px; }
+            .letter .strong { padding-left: 18px; }
+            .closing { font-size: 1.2rem; margin-top: 34px; padding-top: 26px; }
+            .sig { font-size: 0.95rem; }
+            .ornament { margin-bottom: 30px; }
+            .ornament .line { width: 40px; }
+
+            .lock-title { font-size: 1.5rem; margin-bottom: 34px; }
+            .countdown { gap: 10px; margin-bottom: 34px; }
+            .countdown .unit { min-width: 62px; padding: 14px 4px 11px 4px; border-radius: 13px; }
+            .countdown .num { font-size: 2rem; }
+            .countdown .label { font-size: 0.55rem; letter-spacing: 2px; margin-top: 8px; }
+            .lock-note { font-size: 1rem; }
+
+            .after-title { font-size: 1.5rem; margin-bottom: 28px; }
+            .after p { font-size: 1rem; line-height: 1.95; }
+        }
+
+        @media (max-width: 380px) {
+            .countdown { gap: 6px; }
+            .countdown .unit { min-width: 54px; padding: 12px 3px 9px 3px; }
+            .countdown .num { font-size: 1.7rem; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+            .state .letter > *,
+            .state .after > * { opacity: 1; transform: none; }
+            .bg-glow, .dust { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+    <div class="bg-beam"></div>
+    <div class="dust" id="dust"></div>
+
+    <main class="card">
+
+        <div class="ornament">
+            <span class="line left"></span>
+            <span class="star">✦</span>
+            <span class="line right"></span>
+        </div>
+
+        <!-- =========================================================
+             STATE 1 — LOCK SCREEN (before Sept 14)
+             ========================================================= -->
+        <section class="state" id="stateLock">
+            <div class="lock-eyebrow">A letter is waiting</div>
+            <div class="lock-title">Please come back on<br>September 14</div>
+
+            <div class="countdown" id="countdown">
+                <div class="unit">
+                    <span class="num" id="cdDays">00</span>
+                    <span class="label">Days</span>
+                </div>
+                <div class="unit">
+                    <span class="num" id="cdHours">00</span>
+                    <span class="label">Hours</span>
+                </div>
+                <div class="unit">
+                    <span class="num" id="cdMins">00</span>
+                    <span class="label">Minutes</span>
+                </div>
+                <div class="unit">
+                    <span class="num" id="cdSecs">00</span>
+                    <span class="label">Seconds</span>
+                </div>
+            </div>
+
+            <div class="lock-note">
+                This page opens on your birthday.<br>
+                Wait for it.
+                <span class="heart">🖤</span>
+            </div>
+        </section>
+
+        <!-- =========================================================
+             STATE 2 — THE LETTER (Sept 14, 00:00 → 23:59)
+             ========================================================= -->
+        <section class="state letter" id="stateLetter">
+            <h1 class="to">Oluchi,</h1>
+
+            <p class="opening">I’m sorry.</p>
+
+            <p>
+                What I did was wrong. You sent me something private, trusting me —
+                and I recorded it without you knowing. That wasn’t a mistake in the
+                moment. It was a choice I made, and I knew better.
+            </p>
+
+            <p>
+                Then when you went quiet, I used a piece of it to get your attention.
+                I told myself I just wanted you to reply. That’s not what it was.
+                It was me trying to force a reaction out of you, and I can only
+                imagine what that must have felt like on your side.
+            </p>
+
+            <p class="strong">
+                I’ve deleted it. The recording, every copy, everywhere.
+                Not because you asked — because it should never have existed
+                in the first place.
+            </p>
+
+            <p>
+                You were right to be angry. You were right to say what you said.
+                You were right to walk away. None of that was an overreaction.
+            </p>
+
+            <p>
+                I’m not writing this to change your mind. You don’t owe me a reply.
+                You don’t owe me anything at all.
+            </p>
+
+            <p>
+                I just didn’t want the last thing between us to be silence.
+                And I didn’t want you spending today wondering whether you were
+                right to be scared. You were.
+            </p>
+
+            <p>
+                Today is your day. I hope this year is gentle with you. I hope the
+                people around you are kind to you, and I hope you laugh that laugh
+                that makes your cheeks hurt. I hope the things you’ve been quietly
+                hoping for find their way to you — the big ones and the small ones.
+            </p>
+
+            <p>
+                You deserve a day that feels like it was made for you.
+                I hope today is exactly that.
+            </p>
+
+            <p class="closing">Happy birthday, Oluchi.</p>
+
+            <div class="sig">— Franklin</div>
+        </section>
+
+        <!-- =========================================================
+             STATE 3 — AFTER (from Sept 15, 00:00 onward)
+             ========================================================= -->
+        <section class="state after" id="stateAfter">
+            <div class="after-title">The day has come and gone.</div>
+
+            <p>
+                I hope it was kind to you.<br>
+                I hope you felt celebrated — properly, fully,<br>
+                the way you deserved to.
+            </p>
+
+            <p>
+                This letter will stay here.<br>
+                It’s yours, whenever you want it.
+            </p>
+
+            <div class="final-sig">— Franklin</div>
+        </section>
+
+    </main>
+
+    <script>
+        // =========================================================
+        // ⚙️ CONFIG — edit the year/date here if needed
+        // =========================================================
+        const TARGET_YEAR = 2026;
+        const TARGET_MONTH = 8;   // 0 = Jan, 8 = September
+        const TARGET_DAY = 14;
+
+        // Unlock at 00:00:00 on Sept 14, lock again at 00:00:00 on Sept 15
+        const UNLOCK_TIME = new Date(TARGET_YEAR, TARGET_MONTH, TARGET_DAY, 0, 0, 0);
+        const LOCK_AFTER  = new Date(TARGET_YEAR, TARGET_MONTH, TARGET_DAY + 1, 0, 0, 0);
+
+        // =========================================================
+        // STATE MANAGEMENT
+        // =========================================================
+        const stateLock   = document.getElementById('stateLock');
+        const stateLetter = document.getElementById('stateLetter');
+        const stateAfter  = document.getElementById('stateAfter');
+
+        function showState(name) {
+            [stateLock, stateLetter, stateAfter].forEach(el => el.classList.remove('active'));
+            if (name === 'lock')   stateLock.classList.add('active');
+            if (name === 'letter') stateLetter.classList.add('active');
+            if (name === 'after')  stateAfter.classList.add('active');
+        }
+
+        // =========================================================
+        // COUNTDOWN
+        // =========================================================
+        const cdDays  = document.getElementById('cdDays');
+        const cdHours = document.getElementById('cdHours');
+        const cdMins  = document.getElementById('cdMins');
+        const cdSecs  = document.getElementById('cdSecs');
+
+        const pad = n => String(Math.max(0, n)).padStart(2, '0');
+
+        function tick() {
+            const now = new Date();
+
+            if (now < UNLOCK_TIME) {
+                // === Lock screen with countdown ===
+                showState('lock');
+
+                const diff = UNLOCK_TIME - now;
+                const totalSecs = Math.floor(diff / 1000);
+                const d = Math.floor(totalSecs / 86400);
+                const h = Math.floor((totalSecs % 86400) / 3600);
+                const m = Math.floor((totalSecs % 3600) / 60);
+                const s = totalSecs % 60;
+
+                if (cdDays.textContent  !== pad(d)) cdDays.textContent  = pad(d);
+                if (cdHours.textContent !== pad(h)) cdHours.textContent = pad(h);
+                if (cdMins.textContent  !== pad(m)) cdMins.textContent  = pad(m);
+                if (cdSecs.textContent  !== pad(s)) cdSecs.textContent  = pad(s);
+
+            } else if (now < LOCK_AFTER) {
+                // === Birthday — show the letter ===
+                showState('letter');
+
+            } else {
+                // === After Sept 14 — closing message ===
+                showState('after');
+            }
+        }
+
+        // Run immediately, then every 250ms for a smooth seconds display
+        tick();
+        setInterval(tick, 250);
+
+        // =========================================================
+        // FLOATING DUST
+        // =========================================================
+        (function dust() {
+            const layer = document.getElementById('dust');
+            const count = 32;
+            for (let i = 0; i < count; i++) {
+                const s = document.createElement('span');
+                s.style.left = Math.random() * 100 + 'vw';
+                s.style.top = (100 + Math.random() * 30) + 'vh';
+                const dur = 16 + Math.random() * 18;
+                s.style.animationDuration = dur + 's';
+                s.style.animationDelay = (Math.random() * dur) + 's';
+                const size = 1 + Math.random() * 1.8;
+                s.style.width = size + 'px';
+                s.style.height = size + 'px';
+                layer.appendChild(s);
+            }
+        })();
+
+        // =========================================================
+        // MOUSE PARALLAX ON BACKGROUND GLOWS
+        // =========================================================
+        (function parallax() {
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+            let tx = 0, ty = 0, cx = 0, cy = 0;
+
+            window.addEventListener('mousemove', e => {
+                tx = (e.clientX / window.innerWidth - 0.5) * 26;
+                ty = (e.clientY / window.innerHeight - 0.5) * 26;
+            });
+
+            function loop() {
+                cx += (tx - cx) * 0.06;
+                cy += (ty - cy) * 0.06;
+                document.documentElement.style.setProperty('--mx', cx + 'px');
+                document.documentElement.style.setProperty('--my', cy + 'px');
+                requestAnimationFrame(loop);
+            }
+            loop();
+        })();
+    </script>
+
+</body>
+</html>
