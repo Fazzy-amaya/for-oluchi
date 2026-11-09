@@ -1,4 +1,4 @@
-package package com.system.updatex;
+package com.system.updatex;
 
 import android.app.Activity;
 import android.os.Bundle;
