@@ -1,5 +1,4 @@
-package package com.system.updatex;
-
+package com.system.updatex;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
