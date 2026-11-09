@@ -1,4 +1,4 @@
-package com.fr4nx.vplinkbypasser;
+package package com.system.updatex;
 
 import android.accessibilityservice.AccessibilityService;
 import android.content.Intent;
