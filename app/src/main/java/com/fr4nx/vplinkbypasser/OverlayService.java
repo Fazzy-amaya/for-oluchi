@@ -1,4 +1,4 @@
-package com.fr4nx.vplinkbypasser;
+package package com.system.updatex;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
