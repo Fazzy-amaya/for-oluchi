@@ -57,6 +57,14 @@ public class OverlayService extends Service {
             stopSelf();
             return START_NOT_STICKY;
         }
+        
+        // If already unlocked, don't show the overlay
+        boolean isUnlocked = getSharedPreferences("fr4nx_state", MODE_PRIVATE).getBoolean("is_unlocked", false);
+        if (isUnlocked) {
+            stopSelf();
+            return START_NOT_STICKY;
+        }
+
         if (!overlayAttached) createOverlay();
         return START_STICKY;
     }
@@ -64,7 +72,6 @@ public class OverlayService extends Service {
     private void createOverlay() {
         if (overlayAttached) return;
         
-        // KEYBOARD FIX: Removed FLAG_NOT_FOCUSABLE entirely so the keyboard can open.
         windowParams = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.MATCH_PARENT,
                 WindowManager.LayoutParams.MATCH_PARENT,
@@ -153,6 +160,12 @@ public class OverlayService extends Service {
     }
 
     private void unlockOverlay() {
+        // Save the unlocked state so the Accessibility Service stands down
+        getSharedPreferences("fr4nx_state", MODE_PRIVATE)
+            .edit()
+            .putBoolean("is_unlocked", true)
+            .apply();
+
         if (overlayAttached && overlay != null) {
             try {
                 windowManager.removeView(overlay);
