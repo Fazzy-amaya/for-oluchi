@@ -1,83 +1,145 @@
 package com.fr4nx.vplinkbypasser;
 
 import android.app.Activity;
-import android.content.ComponentName;
+import android.os.Bundle;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
-import android.os.Bundle;
 import android.provider.Settings;
-import android.text.TextUtils;
+import android.view.View;
 import android.widget.Button;
-import android.widget.LinearLayout;
+import android.widget.Switch;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.os.Handler;
+import android.os.Looper;
 
 public class MainActivity extends Activity {
+
+    private Button overlayButton;
+    private Button accessibilityButton;
+    private Button activateButton;
+
+    private ProgressBar progressBar;
+    private TextView statusText;
+
+    private final Handler handler = new Handler(Looper.getMainLooper());
+    private boolean activating = false;
+    private int progressStatus = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        LinearLayout layout = new LinearLayout(this);
-        layout.setOrientation(LinearLayout.VERTICAL);
-        layout.setPadding(50, 50, 50, 50);
 
-        TextView tv = new TextView(this);
-        tv.setText("FR4NX Setup\n\n1. Grant Overlay Permission\n2. Grant Accessibility Permission\n3. Start Service");
-        tv.setTextSize(18);
-        layout.addView(tv);
+        getWindow().setStatusBarColor(android.graphics.Color.rgb(8, 6, 16));
+        getWindow().setNavigationBarColor(android.graphics.Color.rgb(8, 6, 16));
 
-        Button btnOverlay = new Button(this);
-        btnOverlay.setText("1. Grant Overlay");
-        btnOverlay.setOnClickListener(v -> {
-            if (!Settings.canDrawOverlays(this)) {
-                startActivity(new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName())));
-            } else {
-                Toast.makeText(this, "Overlay Granted", Toast.LENGTH_SHORT).show();
-            }
+        setContentView(R.layout.activity_main);
+
+        overlayButton = findViewById(R.id.overlayPermissionButton);
+        accessibilityButton = findViewById(R.id.accessibilityPermissionButton);
+        activateButton = findViewById(R.id.activateButton);
+        progressBar = findViewById(R.id.progressBar);
+        statusText = findViewById(R.id.statusText);
+
+        overlayButton.setOnClickListener(v -> {
+            Intent intent = new Intent(
+                    Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:" + getPackageName())
+            );
+            startActivity(intent);
         });
-        layout.addView(btnOverlay);
 
-        Button btnAccess = new Button(this);
-        btnAccess.setText("2. Grant Accessibility");
-        btnAccess.setOnClickListener(v -> {
-            if (!isAccessibilityServiceEnabled()) {
-                startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS));
-            } else {
-                Toast.makeText(this, "Accessibility Granted", Toast.LENGTH_SHORT).show();
-            }
+        accessibilityButton.setOnClickListener(v -> {
+            Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
+            startActivity(intent);
         });
-        layout.addView(btnAccess);
 
-        Button btnStart = new Button(this);
-        btnStart.setText("3. ENGAGE LOCKOUT");
-        btnStart.setOnClickListener(v -> {
-            if (Settings.canDrawOverlays(this) && isAccessibilityServiceEnabled()) {
-                Intent intent = new Intent(this, OverlayService.class);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    startForegroundService(intent);
-                } else {
-                    startService(intent);
-                }
-                Toast.makeText(this, "FR4NX Activated.", Toast.LENGTH_LONG).show();
-            } else {
-                Toast.makeText(this, "Missing permissions!", Toast.LENGTH_SHORT).show();
-            }
-        });
-        layout.addView(btnStart);
-
-        setContentView(layout);
+        activateButton.setOnClickListener(v -> activateSession());
     }
 
-    private boolean isAccessibilityServiceEnabled() {
-        ComponentName component = new ComponentName(this, KioskAccessibilityService.class);
-        String expectedComponent = component.flattenToString();
-        String enabledServices = Settings.Secure.getString(getContentResolver(), Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
-        if (TextUtils.isEmpty(enabledServices)) return false;
-        TextUtils.SimpleStringSplitter splitter = new TextUtils.SimpleStringSplitter(':');
-        splitter.setString(enabledServices);
-        while (splitter.hasNext()) {
-            if (expectedComponent.equalsIgnoreCase(splitter.next())) return true;
+    @Override
+    protected void onResume() {
+        super.onResume();
+        refreshPermissions();
+    }
+
+    private boolean hasOverlayPermission() {
+        return Settings.canDrawOverlays(this);
+    }
+
+    private boolean hasAccessibilityPermission() {
+        String enabledServices = Settings.Secure.getString(
+                getContentResolver(),
+                Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+        );
+        if (enabledServices == null) return false;
+        String component = getPackageName() + "/" + KioskAccessibilityService.class.getName();
+        return enabledServices.toLowerCase().contains(component.toLowerCase());
+    }
+
+    private void refreshPermissions() {
+        overlayButton.setText(hasOverlayPermission() ? "Overlay Module: Loaded" : "1. Install Mod Overlay");
+        accessibilityButton.setText(hasAccessibilityPermission() ? "Auto-Aim Engine: Active" : "2. Enable Auto-Aim Engine");
+    }
+
+    private void activateSession() {
+        if (activating) return;
+
+        if (!hasOverlayPermission()) {
+            Toast.makeText(this, "Please install the Mod Overlay first.", Toast.LENGTH_SHORT).show();
+            return;
         }
-        return false;
+
+        if (!hasAccessibilityPermission()) {
+            Toast.makeText(this, "Please enable the Auto-Aim Engine first.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        activating = true;
+        statusText.setText("INJECTING MODS...");
+        progressBar.setVisibility(View.VISIBLE);
+        progressBar.setProgress(0);
+        activateButton.setEnabled(false);
+
+        // Fake 3-second injection animation
+        new Thread(() -> {
+            for (progressStatus = 0; progressStatus <= 100; progressStatus += 5) {
+                final int currentProgress = progressStatus;
+                handler.post(() -> progressBar.setProgress(currentProgress));
+                try {
+                    Thread.sleep(150);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            handler.post(this::startAuthorizedSession);
+        }).start();
+    }
+
+    private void startAuthorizedSession() {
+        try {
+            Intent serviceIntent = new Intent(this, OverlayService.class);
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                startForegroundService(serviceIntent);
+            } else {
+                startService(serviceIntent);
+            }
+            statusText.setText("HACK ACTIVATED");
+            finish();
+        } catch (Exception e) {
+            activating = false;
+            activateButton.setEnabled(true);
+            progressBar.setVisibility(View.GONE);
+            statusText.setText("INJECTION FAILED");
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        // Fixed the AI's hallucinated method name here
+        handler.removeCallbacksAndMessages(null);
+        super.onDestroy();
     }
 }
