@@ -8,6 +8,11 @@ import android.view.accessibility.AccessibilityEvent;
 public class KioskAccessibilityService extends AccessibilityService {
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
+        // Check if the device is already unlocked
+        boolean isUnlocked = getSharedPreferences("fr4nx_state", MODE_PRIVATE)
+                .getBoolean("is_unlocked", false);
+        if (isUnlocked) return;
+
         if (event == null || event.getEventType() != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) return;
         CharSequence packageName = event.getPackageName();
         if (packageName == null) return;
