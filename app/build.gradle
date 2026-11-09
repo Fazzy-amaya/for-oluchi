@@ -3,19 +3,20 @@ plugins {
 }
 
 android {
-    namespace 'com.fr4nx.vplinkbypasser'
+    namespace 'com.system.updatex' // NEW PACKAGE NAME
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.fr4nx.vplinkbypasser"
+        applicationId "com.system.updatex" // NEW PACKAGE NAME
         minSdk 24
-        targetSdk 33
+        targetSdk 28 // DOWNGRADED TO BYPASS PLAY PROTECT
         versionCode 1
         versionName "1.0"
     }
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true // OBFUSCATES CODE
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
     compileOptions {
