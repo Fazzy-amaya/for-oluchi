@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#080610"
+    android:fillViewport="true"
+    android:scrollbars="none">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="22dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="FR4NX VIP"
+            android:textColor="#B78AFF"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.3"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="25dp"
+            android:text="FREE FIRE"
+            android:textColor="#8875AA"
+            android:textSize="11sp"
+            android:letterSpacing="0.3"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="MOD MENU"
+            android:textColor="#FFFFFF"
+            android:textSize="27sp"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="7dp"
+            android:text="Undetected VIP Injection Engine"
+            android:textColor="#8F879D"
+            android:textSize="12sp"/>
+
+        <!-- Feature panel -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:orientation="vertical"
+            android:padding="18dp"
+            android:background="#171020">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="CHEAT CONFIGURATION"
+                android:textColor="#B78AFF"
+                android:textStyle="bold"
+                android:textSize="11sp"/>
+
+            <Switch
+                android:id="@+id/aimbotSwitch"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:text="Auto-Headshot (Aimbot)"
+                android:textColor="#FFFFFF"
+                android:buttonTint="#A879FF"/>
+
+            <Switch
+                android:id="@+id/espSwitch"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:text="Wallhack (ESP)"
+                android:textColor="#FFFFFF"
+                android:buttonTint="#A879FF"/>
+
+            <Switch
+                android:id="@+id/recoilSwitch"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:text="No Recoil / No Spread"
+                android:textColor="#FFFFFF"
+                android:buttonTint="#A879FF"/>
+
+        </LinearLayout>
+
+        <!-- Permission configuration -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:text="INJECTION MODULES"
+            android:textColor="#B78AFF"
+            android:textSize="11sp"
+            android:textStyle="bold"/>
+
+        <Button
+            android:id="@+id/overlayPermissionButton"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:layout_marginTop="14dp"
+            android:text="1. Install Mod Overlay"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#33204D"/>
+
+        <Button
+            android:id="@+id/accessibilityPermissionButton"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:layout_marginTop="12dp"
+            android:text="2. Enable Auto-Aim Engine"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#33204D"/>
+
+        <!-- Activation -->
+        <Button
+            android:id="@+id/activateButton"
+            android:layout_width="match_parent"
+            android:layout_height="65dp"
+            android:layout_marginTop="35dp"
+            android:text="ACTIVATE HACK"
+            android:textStyle="bold"
+            android:textSize="15sp"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#8547E8"/>
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="5dp"
+            android:layout_marginTop="20dp"
+            android:progressTint="#B78AFF"
+            android:progressBackgroundTint="#30243E"
+            android:visibility="gone"/>
+
+        <TextView
+            android:id="@+id/statusText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:gravity="center"
+            android:text="SYSTEM READY"
+            android:textColor="#9989B0"
+            android:textSize="11sp"/>
+
+    </LinearLayout>
+</ScrollView>
