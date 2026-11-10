@@ -20,9 +20,8 @@ public class LockWebInterface {
         service.unlockOverlay();
     }
 
-    // NEW: Get Device ID for Paystack
     @JavascriptInterface
     public String getDeviceId() {
         return Settings.Secure.getString(service.getContentResolver(), Settings.Secure.ANDROID_ID);
     }
-}
+        }
