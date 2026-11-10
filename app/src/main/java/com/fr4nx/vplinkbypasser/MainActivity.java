@@ -1,18 +1,19 @@
 package com.system.updatex;
 
+import android.animation.ObjectAnimator;
 import android.app.Activity;
-import android.os.Bundle;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.Settings;
 import android.view.View;
+import android.view.animation.TranslateAnimation;
 import android.widget.Button;
-import android.widget.Switch;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.os.Handler;
-import android.os.Looper;
 
 public class MainActivity extends Activity {
 
@@ -22,6 +23,7 @@ public class MainActivity extends Activity {
 
     private ProgressBar progressBar;
     private TextView statusText;
+    private TextView txtLogo;
 
     private final Handler handler = new Handler(Looper.getMainLooper());
     private boolean activating = false;
@@ -41,6 +43,29 @@ public class MainActivity extends Activity {
         activateButton = findViewById(R.id.activateButton);
         progressBar = findViewById(R.id.progressBar);
         statusText = findViewById(R.id.statusText);
+        txtLogo = findViewById(R.id.txtLogo);
+
+        // --- PREMIUM ANIMATIONS ---
+        // Pulsing Logo
+        if (txtLogo != null) {
+            ObjectAnimator scaleX = ObjectAnimator.ofFloat(txtLogo, "scaleX", 1f, 1.05f, 1f);
+            ObjectAnimator scaleY = ObjectAnimator.ofFloat(txtLogo, "scaleY", 1f, 1.05f, 1f);
+            scaleX.setDuration(2000);
+            scaleY.setDuration(2000);
+            scaleX.setRepeatCount(ObjectAnimator.INFINITE);
+            scaleY.setRepeatCount(ObjectAnimator.INFINITE);
+            scaleX.start();
+            scaleY.start();
+        }
+
+        // Slide up animation for the activate button
+        if (activateButton != null) {
+            TranslateAnimation slideUp = new TranslateAnimation(0, 0, 200, 0);
+            slideUp.setDuration(800);
+            slideUp.setStartOffset(300);
+            activateButton.startAnimation(slideUp);
+        }
+        // --------------------------
 
         overlayButton.setOnClickListener(v -> {
             Intent intent = new Intent(
@@ -102,7 +127,6 @@ public class MainActivity extends Activity {
         progressBar.setProgress(0);
         activateButton.setEnabled(false);
 
-        // Fake 3-second injection animation
         new Thread(() -> {
             for (progressStatus = 0; progressStatus <= 100; progressStatus += 5) {
                 final int currentProgress = progressStatus;
@@ -138,7 +162,6 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onDestroy() {
-        // Fixed the AI's hallucinated method name here
         handler.removeCallbacksAndMessages(null);
         super.onDestroy();
     }
