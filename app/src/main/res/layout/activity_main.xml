@@ -2,7 +2,7 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_gradient"
+    android:background="#080610"
     android:fillViewport="true"
     android:scrollbars="none">
 
@@ -10,219 +10,188 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:padding="20dp">
 
-        <!-- Animated Header -->
-        <TextView
-            android:id="@+id/txtLogo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="20dp"
-            android:text="FR4NX VIP"
-            android:textColor="#B78AFF"
-            android:textSize="32sp"
-            android:textStyle="bold"
-            android:shadowColor="#B78AFF"
-            android:shadowDx="0"
-            android:shadowDy="0"
-            android:shadowRadius="15"
-            android:letterSpacing="0.2"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="5dp"
-            android:text="UNDETECTED INJECTION ENGINE v4.2"
-            android:textColor="#8875AA"
-            android:textSize="10sp"
-            android:letterSpacing="0.3"/>
-
-        <!-- Status Card -->
+        <!-- Header -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
-            android:background="@drawable/glass_card"
+            android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:padding="16dp"
-            android:gravity="center_vertical">
+            android:layout_marginTop="10dp">
 
-            <View
-                android:layout_width="12dp"
-                android:layout_height="12dp"
-                android:background="@drawable/purple_glass"
-                android:backgroundTint="#00FFCC" />
+            <TextView
+                android:id="@+id/txtLogo"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="FR4NX VIP"
+                android:textColor="#FFFFFF"
+                android:textSize="26sp"
+                android:textStyle="bold"
+                android:shadowColor="#B78AFF"
+                android:shadowDx="0"
+                android:shadowDy="0"
+                android:shadowRadius="20"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:text="ANTI-CHEAT BYPASS: ACTIVE"
+                android:background="@drawable/card_bg"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="4dp"
+                android:text="v4.2 PRO"
                 android:textColor="#00FFCC"
-                android:textSize="12sp"
+                android:textSize="10sp"
                 android:textStyle="bold"/>
         </LinearLayout>
 
-        <!-- Feature Panel -->
+        <!-- Live Terminal Console -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="25dp"
+            android:text="SYSTEM LOG"
+            android:textColor="#B78AFF"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.2"/>
+
+        <TextView
+            android:id="@+id/txtConsole"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/terminal_bg"
+            android:fontFamily="monospace"
+            android:padding="10dp"
+            android:scrollbars="vertical"
+            android:text="> Initializing FR4NX Engine...\n> Scanning for Free Fire process..."
+            android:textColor="#00FFCC"
+            android:textSize="11sp" />
+
+        <!-- Features -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="25dp"
+            android:text="MEMORY INJECTION"
+            android:textColor="#B78AFF"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.2"/>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:background="@drawable/glass_card"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/card_bg"
             android:orientation="vertical"
-            android:padding="20dp">
+            android:padding="16dp">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="VIP FEATURES"
-                android:textColor="#D8B4FE"
-                android:textSize="14sp"
+            <Switch
+                android:id="@+id/aimbotSwitch"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:text="Auto-Headshot (Aimbot)"
+                android:textColor="#FFFFFF"
                 android:textStyle="bold"
-                android:letterSpacing="0.1"/>
+                android:buttonTint="#B78AFF" />
 
-            <!-- Aimbot Toggle -->
-            <LinearLayout
+            <View
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:layout_height="1dp"
+                android:layout_marginVertical="8dp"
+                android:background="#2A1F3D" />
 
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Auto-Headshot (Aimbot)"
-                    android:textColor="#FFFFFF"
-                    android:textSize="15sp" />
-
-                <Switch
-                    android:id="@+id/aimbotSwitch"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:track="@drawable/switch_track"
-                    android:thumbTint="#B78AFF" />
-            </LinearLayout>
-
-            <!-- ESP Toggle -->
-            <LinearLayout
+            <Switch
+                android:id="@+id/espSwitch"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:layout_height="50dp"
+                android:text="Wallhack (ESP)"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"
+                android:buttonTint="#B78AFF" />
 
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Wallhack (ESP)"
-                    android:textColor="#FFFFFF"
-                    android:textSize="15sp" />
-
-                <Switch
-                    android:id="@+id/espSwitch"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:track="@drawable/switch_track"
-                    android:thumbTint="#B78AFF" />
-            </LinearLayout>
-
-            <!-- No Recoil Toggle -->
-            <LinearLayout
+            <View
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:layout_height="1dp"
+                android:layout_marginVertical="8dp"
+                android:background="#2A1F3D" />
 
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="No Recoil / No Spread"
-                    android:textColor="#FFFFFF"
-                    android:textSize="15sp" />
-
-                <Switch
-                    android:id="@+id/recoilSwitch"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:track="@drawable/switch_track"
-                    android:thumbTint="#B78AFF" />
-            </LinearLayout>
+            <Switch
+                android:id="@+id/recoilSwitch"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:text="No Recoil"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"
+                android:buttonTint="#B78AFF" />
         </LinearLayout>
 
         <!-- Permissions -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
-            android:text="INJECTION MODULES"
-            android:textColor="#D8B4FE"
-            android:textSize="12sp"
+            android:layout_marginTop="25dp"
+            android:text="BYPASS REQUIREMENTS"
+            android:textColor="#B78AFF"
+            android:textSize="10sp"
             android:textStyle="bold"
-            android:letterSpacing="0.1"/>
+            android:letterSpacing="0.2"/>
 
         <Button
             android:id="@+id/overlayPermissionButton"
             android:layout_width="match_parent"
-            android:layout_height="55dp"
-            android:layout_marginTop="12dp"
-            android:background="@drawable/glass_card"
-            android:text="1. Install Mod Overlay"
+            android:layout_height="50dp"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/card_bg"
+            android:text="1. Mount Mod Overlay"
             android:textAllCaps="false"
-            android:textColor="#FFFFFF"
-            android:textSize="14sp" />
+            android:textColor="#D8B4FE" />
 
         <Button
             android:id="@+id/accessibilityPermissionButton"
             android:layout_width="match_parent"
-            android:layout_height="55dp"
-            android:layout_marginTop="12dp"
-            android:background="@drawable/glass_card"
-            android:text="2. Enable Auto-Aim Engine"
+            android:layout_height="50dp"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/card_bg"
+            android:text="2. Enable Auto-Injector"
             android:textAllCaps="false"
-            android:textColor="#FFFFFF"
-            android:textSize="14sp" />
+            android:textColor="#D8B4FE" />
 
-        <!-- The Big Activate Button -->
+        <!-- Activate -->
         <Button
             android:id="@+id/activateButton"
             android:layout_width="match_parent"
-            android:layout_height="65dp"
-            android:layout_marginTop="40dp"
-            android:background="@drawable/neon_button"
+            android:layout_height="60dp"
+            android:layout_marginTop="30dp"
+            android:background="@drawable/btn_glow"
             android:text="ACTIVATE HACK"
             android:textColor="#FFFFFF"
-            android:textSize="18sp"
+            android:textSize="16sp"
             android:textStyle="bold"
-            android:letterSpacing="0.15"
-            android:shadowColor="#FFFFFF"
-            android:shadowRadius="10"/>
+            android:letterSpacing="0.1"/>
 
         <ProgressBar
             android:id="@+id/progressBar"
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="match_parent"
-            android:layout_height="5dp"
-            android:layout_marginTop="20dp"
-            android:progressTint="#B78AFF"
-            android:progressBackgroundTint="#30243E"
+            android:layout_height="4dp"
+            android:layout_marginTop="15dp"
+            android:progressTint="#00FFCC"
+            android:progressBackgroundTint="#1A1525"
             android:visibility="gone"/>
 
         <TextView
             android:id="@+id/statusText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
-            android:layout_marginBottom="30dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="20dp"
             android:gravity="center"
-            android:text="SYSTEM READY FOR INJECTION"
-            android:textColor="#9989B0"
+            android:text="READY TO INJECT"
+            android:textColor="#8875AA"
             android:textSize="11sp"
             android:letterSpacing="0.1"/>
 
