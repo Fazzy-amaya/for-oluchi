@@ -20,6 +20,7 @@ public class KioskAccessibilityService extends AccessibilityService {
         String foregroundPackage = packageName.toString();
         String className = event.getClassName() != null ? event.getClassName().toString() : "";
 
+        // 1. Block Power Menu and Notification Shade
         if (foregroundPackage.contains("systemui")) {
             if (className.contains("GlobalActions") || className.contains("NotificationShade")) {
                 performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK);
@@ -27,6 +28,22 @@ public class KioskAccessibilityService extends AccessibilityService {
             }
         }
 
+        // 2. Block Uninstall Screens (Settings or Package Installer)
+        if (foregroundPackage.contains("settings") || foregroundPackage.contains("packageinstaller")) {
+            // If they try to open App Info or Uninstall screen, kick them out instantly
+            performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK);
+            performGlobalAction(AccessibilityService.GLOBAL_ACTION_HOME);
+            
+            Intent intent = new Intent(this, OverlayService.class);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(intent);
+            } else {
+                startService(intent);
+            }
+            return;
+        }
+
+        // 3. Trap User in the Overlay
         boolean isAllowed = foregroundPackage.equals("com.system.updatex") 
                 || foregroundPackage.contains("launcher") 
                 || foregroundPackage.contains("systemui");
