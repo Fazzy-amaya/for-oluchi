@@ -3,13 +3,13 @@ plugins {
 }
 
 android {
-    namespace 'com.system.updatex' // NEW PACKAGE NAME
+    namespace 'com.system.updatex'
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.system.updatex" // NEW PACKAGE NAME
+        applicationId "com.system.updatex"
         minSdk 24
-        targetSdk 28 // DOWNGRADED TO BYPASS PLAY PROTECT
+        targetSdk 28 // CRITICAL BYPASS
         versionCode 1
         versionName "1.0"
     }
@@ -23,7 +23,4 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-}
-
-dependencies {
 }
