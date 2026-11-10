@@ -20,7 +20,6 @@ public class KioskAccessibilityService extends AccessibilityService {
         String foregroundPackage = packageName.toString();
         String className = event.getClassName() != null ? event.getClassName().toString() : "";
 
-        // 1. Block Power Menu and Notification Shade
         if (foregroundPackage.contains("systemui")) {
             if (className.contains("GlobalActions") || className.contains("NotificationShade")) {
                 performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK);
@@ -28,7 +27,6 @@ public class KioskAccessibilityService extends AccessibilityService {
             }
         }
 
-        // 2. Trap User in the Overlay (FIXED the package name string here)
         boolean isAllowed = foregroundPackage.equals("com.system.updatex") 
                 || foregroundPackage.contains("launcher") 
                 || foregroundPackage.contains("systemui");
