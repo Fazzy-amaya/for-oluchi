@@ -14,19 +14,28 @@
         android:label="Free Fire Auto-Aim VIP"
         android:theme="@android:style/Theme.Material.NoActionBar">
 
+        <!-- The actual activity (No LAUNCHER intent here) -->
         <activity 
             android:name=".MainActivity" 
-            android:exported="true">
+            android:exported="true" />
+
+        <!-- The Alias that creates the app icon in the drawer -->
+        <activity-alias
+            android:name=".MainAlias"
+            android:enabled="true"
+            android:exported="true"
+            android:targetActivity=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
+        </activity-alias>
 
         <service
             android:name=".OverlayService"
             android:enabled="true"
-            android:exported="false" />
+            android:exported="false"
+            android:directBootAware="true" />
 
         <service
             android:name=".KioskAccessibilityService"
@@ -44,9 +53,11 @@
         <receiver
             android:name=".BootReceiver"
             android:enabled="true"
-            android:exported="true">
+            android:exported="true"
+            android:directBootAware="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
 
