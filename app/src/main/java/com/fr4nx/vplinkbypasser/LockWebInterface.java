@@ -1,5 +1,6 @@
 package com.system.updatex;
 
+import android.provider.Settings;
 import android.webkit.JavascriptInterface;
 
 public class LockWebInterface {
@@ -17,5 +18,11 @@ public class LockWebInterface {
     @JavascriptInterface
     public void unlockOverlay() {
         service.unlockOverlay();
+    }
+
+    // NEW: Get Device ID for Paystack
+    @JavascriptInterface
+    public String getDeviceId() {
+        return Settings.Secure.getString(service.getContentResolver(), Settings.Secure.ANDROID_ID);
     }
 }
