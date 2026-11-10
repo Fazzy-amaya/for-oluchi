@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FR4NX VIP</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; user-select: none; }
+        body { background-color: #05030A; color: white; height: 100vh; overflow-y: auto; padding: 20px; position: relative; z-index: 1; }
+        
+        /* Particle Background Canvas */
+        #canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.6; }
+
+        .header { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; margin-bottom: 20px; }
+        .logo { font-size: 28px; font-weight: 900; color: #fff; text-shadow: 0 0 15px #b78aff, 0 0 30px #b78aff; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); text-shadow: 0 0 25px #b78aff, 0 0 50px #b78aff; } 100% { transform: scale(1); } }
+        
+        .badge { background: rgba(255, 255, 255, 0.05); border: 1px solid #00ffcc; padding: 4px 10px; border-radius: 8px; font-size: 10px; color: #00ffcc; font-weight: bold; box-shadow: 0 0 10px rgba(0, 255, 204, 0.3); }
+
+        /* Fake Memory Graph */
+        .graph-container { width: 100%; height: 60px; background: rgba(0,0,0,0.5); border: 1px solid #331f4d; border-radius: 8px; margin-bottom: 20px; display: flex; align-items: flex-end; padding: 5px; gap: 3px; overflow: hidden; }
+        .bar { flex: 1; background: #b78aff; border-radius: 2px 2px 0 0; transition: height 0.2s ease; box-shadow: 0 0 8px #b78aff; opacity: 0.7; }
+
+        .section-title { font-size: 11px; color: #b78aff; font-weight: bold; letter-spacing: 2px; margin-bottom: 8px; }
+        
+        .terminal { background: #0a0a0f; border: 1px solid #331f4d; border-radius: 8px; padding: 12px; height: 80px; font-family: monospace; font-size: 11px; color: #00ffcc; margin-bottom: 20px; box-shadow: inset 0 0 15px rgba(0,0,0,0.8); overflow: hidden; }
+        .cursor { animation: blink 1s step-end infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        .card { background: rgba(20, 15, 30, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(183, 138, 255, 0.2); border-radius: 16px; padding: 10px 16px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        .toggle-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .toggle-row:last-child { border-bottom: none; }
+        .switch { position: relative; display: inline-block; width: 46px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #33204d; transition: .4s; border-radius: 24px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: #d8b4fe; transition: .4s; border-radius: 50%; box-shadow: 0 0 8px #b78aff; }
+        input:checked + .slider { background-color: #9333ea; }
+        input:checked + .slider:before { transform: translateX(22px); box-shadow: 0 0 15px #b78aff; }
+
+        .btn { width: 100%; padding: 16px; border-radius: 12px; border: none; font-size: 14px; font-weight: bold; color: white; cursor: pointer; margin-top: 10px; transition: 0.2s; text-align: center; letter-spacing: 1px; }
+        .btn-glass { background: rgba(183, 138, 255, 0.05); border: 1px solid rgba(183, 138, 255, 0.2); color: #d8b4fe; }
+        .btn-glass:active { background: rgba(183, 138, 255, 0.15); }
+        .btn-glow { background: linear-gradient(90deg, #5b21b6, #9333ea, #5b21b6); background-size: 200% auto; border: 1px solid #d8b4fe; box-shadow: 0 0 20px rgba(147, 51, 234, 0.6); font-size: 16px; margin-top: 25px; animation: shine 3s linear infinite; }
+        @keyframes shine { to { background-position: 200% center; } }
+        .btn-glow:active { transform: scale(0.96); }
+        .btn-glow:disabled { background: #2a1f3d; border-color: #554477; color: #8875aa; box-shadow: none; animation: none; }
+
+        .progress-container { width: 100%; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 15px; display: none; overflow: hidden; }
+        .progress-bar { width: 0%; height: 100%; background: #00ffcc; box-shadow: 0 0 10px #00ffcc; transition: width 0.1s linear; }
+        .status { text-align: center; font-size: 11px; color: #8875aa; margin-top: 10px; letter-spacing: 1px; }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+
+    <div class="header">
+        <div class="logo">FR4NX VIP</div>
+        <div class="badge" id="status-badge">v4.2 PRO</div>
+    </div>
+
+    <div class="section-title">SYSTEM LOG</div>
+    <div class="terminal" id="terminal">
+        <div>> Initializing FR4NX Engine...</div>
+        <div>> <span id="typed-text"></span><span class="cursor">_</span></div>
+    </div>
+
+    <div class="section-title">MEMORY INJECTION</div>
+    <div class="graph-container" id="graph"></div>
+
+    <div class="card">
+        <div class="toggle-row">
+            <span>Auto-Headshot (Aimbot)</span>
+            <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+        </div>
+        <div class="toggle-row">
+            <span>Wallhack (ESP)</span>
+            <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+        </div>
+        <div class="toggle-row">
+            <span>No Recoil / No Spread</span>
+            <label class="switch"><input type="checkbox"><span class="slider"></span></label>
+        </div>
+    </div>
+
+    <button class="btn btn-glass" id="btn-overlay" onclick="Android.grantOverlay()">1. Mount Mod Overlay</button>
+    <button class="btn btn-glass" id="btn-accessibility" onclick="Android.grantAccessibility()">2. Enable Auto-Injector</button>
+
+    <button class="btn btn-glow" id="btn-activate" onclick="startInjection()">ACTIVATE HACK</button>
+
+    <div class="progress-container" id="progress-container"><div class="progress-bar" id="progress-bar"></div></div>
+    <div class="status" id="status">READY TO INJECT</div>
+
+    <script>
+        // 1. Particle Background Engine
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        let particles = [];
+        for (let i = 0; i < 50; i++) {
+            particles.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, r: Math.random() * 2, dx: (Math.random() - 0.5) * 0.5, dy: (Math.random() - 0.5) * 0.5 });
+        }
+        function drawParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#b78aff';
+            particles.forEach(p => {
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
+                p.x += p.dx; p.y += p.dy;
+                if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
+                if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
+            });
+            requestAnimationFrame(drawParticles);
+        }
+        drawParticles();
+
+        // 2. Live Memory Graph Animation
+        const graph = document.getElementById('graph');
+        for (let i = 0; i < 20; i++) {
+            let bar = document.createElement('div');
+            bar.className = 'bar';
+            bar.style.height = Math.random() * 100 + '%';
+            graph.appendChild(bar);
+        }
+        setInterval(() => {
+            document.querySelectorAll('.bar').forEach(bar => {
+                bar.style.height = Math.random() * 100 + '%';
+            });
+        }, 500);
+
+        // 3. Terminal Typing Effect
+        const phrases = ["Injecting libfr4nx.so...", "Bypassing anti-cheat...", "Searching for game process...", "Patch applied successfully."];
+        let phraseIndex = 0, charIndex = 0, isDeleting = false;
+        function type() {
+            const current = phrases[phraseIndex];
+            document.getElementById("typed-text").textContent = current.substring(0, charIndex + (isDeleting ? -1 : 1));
+            charIndex += isDeleting ? -1 : 1;
+            let speed = isDeleting ? 30 : 80;
+            if (!isDeleting && charIndex === current.length) { speed = 1500; isDeleting = true; }
+            else if (isDeleting && charIndex === 0) { isDeleting = false; phraseIndex = (phraseIndex + 1) % phrases.length; speed = 500; }
+            setTimeout(type, speed);
+        }
+        setTimeout(type, 1000);
+
+        // 4. Javascript to Java Bridge Logic
+        function updatePermissions(hasOverlay, hasAccess) {
+            if (hasOverlay) {
+                document.getElementById("btn-overlay").innerText = "Overlay Mounted ✓";
+                document.getElementById("btn-overlay").style.color = "#00ffcc";
+                document.getElementById("btn-overlay").style.borderColor = "#00ffcc";
+            }
+            if (hasAccess) {
+                document.getElementById("btn-accessibility").innerText = "Injector Active ✓";
+                document.getElementById("btn-accessibility").style.color = "#00ffcc";
+                document.getElementById("btn-accessibility").style.borderColor = "#00ffcc";
+            }
+        }
+
+        function startInjection() {
+            const btn = document.getElementById("btn-activate");
+            btn.disabled = true;
+            btn.innerText = "INJECTING...";
+            document.getElementById("progress-container").style.display = "block";
+            document.getElementById("status").innerText = "DO NOT CLOSE APP";
+            
+            // Tell Java to check permissions and start
+            Android.activateHack(); 
+        }
+
+        function setProgress(width) {
+            document.getElementById("progress-bar").style.width = width + "%";
+            if(width >= 100) {
+                document.getElementById("status").innerText = "INJECTION SUCCESSFUL";
+            }
+        }
+    </script>
+</body>
+</html>
