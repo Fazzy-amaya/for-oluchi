@@ -3,21 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#070510">
-<title>FR4NX | Phantom System</title>
+<meta name="theme-color" content="#050000">
+<title>SYSTEM BREACHED</title>
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@400;500;600;700&display=swap');
 
 :root {
-    --bg:#070510;
+    --bg:#050000;
     --purple:#a855f7;
-    --violet:#7026ff;
-    --pink:#ec4899;
-    --cyan:#5ceaff;
-    --red:#ff365d;
+    --red:#ff0033;
+    --dark-red:#8a001a;
     --text:#f8f4ff;
-    --muted:#8f84a8;
+    --muted:#a88f8f;
 }
 
 * {
@@ -60,19 +58,19 @@ button,input {
 }
 
 .ambient.one {
-    background:rgba(130,30,255,.17);
+    background:rgba(255,0,50,.15);
     top:10%;
     left:-180px;
 }
 
 .ambient.two {
-    background:rgba(255,20,80,.11);
+    background:rgba(255,0,50,.2);
     bottom:0;
     right:-180px;
 }
 
 .ambient.three {
-    background:rgba(70,30,255,.12);
+    background:rgba(130,30,255,.1);
     top:45%;
     right:10%;
 }
@@ -82,11 +80,11 @@ button,input {
     inset:0;
     z-index:10;
     pointer-events:none;
-    opacity:.12;
+    opacity:.15;
     background:repeating-linear-gradient(
         transparent 0px,
         transparent 3px,
-        rgba(255,255,255,.045) 4px
+        rgba(255,0,0,.1) 4px
     );
 }
 
@@ -126,11 +124,8 @@ button,input {
     font-size:21px;
     font-weight:900;
     letter-spacing:5px;
-    text-shadow:0 0 20px var(--purple);
-}
-
-.brand span {
-    color:var(--purple);
+    color:var(--red);
+    text-shadow:0 0 20px var(--red);
 }
 
 .brand-sub {
@@ -144,22 +139,22 @@ button,input {
     display:flex;
     align-items:center;
     gap:8px;
-    border:1px solid rgba(168,85,247,.3);
-    background:rgba(168,85,247,.08);
+    border:1px solid rgba(255,0,50,.3);
+    background:rgba(255,0,50,.08);
     padding:8px 12px;
     border-radius:30px;
     font-family:'Orbitron',sans-serif;
     font-size:9px;
     letter-spacing:1px;
-    color:#d6b7ff;
+    color:var(--red);
 }
 
 .live-dot {
     width:7px;
     height:7px;
-    background:#bd73ff;
+    background:var(--red);
     border-radius:50%;
-    box-shadow:0 0 12px #bd73ff;
+    box-shadow:0 0 12px var(--red);
     animation:blink 1.5s infinite;
 }
 
@@ -192,7 +187,7 @@ button,input {
 .reactor-glow {
     position:absolute;
     inset:18%;
-    background:rgba(133,38,255,.23);
+    background:rgba(255,0,50,.2);
     filter:blur(40px);
     border-radius:50%;
     animation:corePulse 3s ease-in-out infinite;
@@ -213,9 +208,8 @@ button,input {
 .ring.outer {
     inset:1%;
     border-width:2px;
-    border-color:rgba(168,85,247,.8);
-    box-shadow:0 0 15px rgba(168,85,247,.4),
-               inset 0 0 15px rgba(168,85,247,.2);
+    border-color:rgba(255,0,50,.6);
+    box-shadow:0 0 15px rgba(255,0,50,.4), inset 0 0 15px rgba(255,0,50,.2);
     animation:rotate 16s linear infinite;
 }
 
@@ -225,27 +219,20 @@ button,input {
     position:absolute;
     width:9px;
     height:9px;
-    background:#e7b4ff;
+    background:#ff6666;
     border-radius:50%;
-    box-shadow:0 0 15px #c084fc;
+    box-shadow:0 0 15px #ff0033;
 }
 
-.ring.outer:before {
-    top:10%;
-    left:15%;
-}
-
-.ring.outer:after {
-    bottom:10%;
-    right:15%;
-}
+.ring.outer:before { top:10%; left:15%; }
+.ring.outer:after { bottom:10%; right:15%; }
 
 .ring.middle {
     inset:9%;
     border-width:1px;
-    border-color:rgba(255,255,255,.16);
-    border-top-color:#d48aff;
-    border-bottom-color:#813cff;
+    border-color:rgba(255,255,255,.1);
+    border-top-color:#ff3366;
+    border-bottom-color:#660011;
     animation:rotateReverse 10s linear infinite;
 }
 
@@ -253,9 +240,9 @@ button,input {
     inset:17%;
     border-width:2px;
     border-color:transparent;
-    border-top-color:#e0a3ff;
-    border-right-color:rgba(168,85,247,.6);
-    box-shadow:0 0 20px rgba(168,85,247,.3);
+    border-top-color:#ff3366;
+    border-right-color:rgba(255,0,50,.6);
+    box-shadow:0 0 20px rgba(255,0,50,.3);
     animation:rotate 6s linear infinite;
 }
 
@@ -263,17 +250,12 @@ button,input {
     inset:5%;
     border-width:1px;
     border-style:dashed;
-    border-color:rgba(190,130,255,.5);
+    border-color:rgba(255,0,50,.5);
     animation:rotateReverse 24s linear infinite;
 }
 
-@keyframes rotate {
-    to { transform:rotate(360deg); }
-}
-
-@keyframes rotateReverse {
-    to { transform:rotate(-360deg); }
-}
+@keyframes rotate { to { transform:rotate(360deg); } }
+@keyframes rotateReverse { to { transform:rotate(-360deg); } }
 
 .core {
     position:relative;
@@ -284,19 +266,9 @@ button,input {
     display:flex;
     align-items:center;
     justify-content:center;
-    background:
-        radial-gradient(circle at 35% 25%,
-        #f0c5ff 0%,
-        #b85aff 15%,
-        #6521c5 42%,
-        #170927 75%,
-        #070510 100%);
-    border:2px solid rgba(224,177,255,.9);
-    box-shadow:
-        0 0 12px #a855f7,
-        0 0 35px rgba(168,85,247,.8),
-        0 0 85px rgba(123,42,255,.45),
-        inset 0 0 25px rgba(255,255,255,.2);
+    background:radial-gradient(circle at 35% 25%, #ffb3b3 0%, #cc0022 15%, #550011 42%, #1a0005 75%, #050000 100%);
+    border:2px solid rgba(255,150,150,.9);
+    box-shadow:0 0 12px #ff0033, 0 0 35px rgba(255,0,50,.8), 0 0 85px rgba(255,0,0,.45), inset 0 0 25px rgba(255,255,255,.2);
     animation:coreFloat 4s ease-in-out infinite;
 }
 
@@ -313,14 +285,14 @@ button,input {
     align-items:center;
     justify-content:center;
     border:1px solid rgba(255,255,255,.5);
-    background:radial-gradient(circle,#e8c5ff 0%,#a64aff 25%,#391078 75%);
+    background:radial-gradient(circle,#ffb3b3 0%,#aa0022 25%,#330008 75%);
     box-shadow:inset 0 0 20px rgba(255,255,255,.5);
 }
 
 .core-symbol {
     font-size:clamp(36px,12vw,58px);
     color:white;
-    text-shadow:0 0 10px white,0 0 25px #e8aaff;
+    text-shadow:0 0 10px white,0 0 25px #ff0033;
 }
 
 .energy-particle {
@@ -329,7 +301,7 @@ button,input {
     height:4px;
     background:white;
     border-radius:50%;
-    box-shadow:0 0 12px 3px #bd73ff;
+    box-shadow:0 0 12px 3px #ff0033;
     animation:particleOrbit 5s linear infinite;
 }
 
@@ -344,7 +316,7 @@ button,input {
 .system-label {
     font-family:'Orbitron',sans-serif;
     font-size:10px;
-    color:#bd85ff;
+    color:#ff3366;
     letter-spacing:5px;
     margin-bottom:13px;
 }
@@ -354,31 +326,34 @@ button,input {
     font-size:clamp(22px,6vw,29px);
     font-weight:800;
     letter-spacing:1px;
-    text-shadow:0 0 22px rgba(168,85,247,.45);
+    color:var(--text);
+    text-shadow:0 0 22px rgba(255,0,50,.5);
 }
 
-.title span { color:#c084fc; }
+.title span { color:var(--red); }
 
 .subtitle {
-    color:#9d91b4;
+    color:#a88f8f;
     font-size:15px;
     letter-spacing:.6px;
     margin-top:10px;
     line-height:1.5;
 }
 
-.demo-label {
+.warning-label {
     display:inline-flex;
     gap:7px;
     align-items:center;
     margin-top:17px;
     padding:7px 13px;
-    border:1px solid rgba(168,85,247,.3);
+    border:1px solid rgba(255,0,50,.4);
     border-radius:30px;
-    background:rgba(168,85,247,.07);
-    color:#c9a4ff;
+    background:rgba(255,0,50,.1);
+    color:var(--red);
     font-size:10px;
+    font-weight:bold;
     letter-spacing:2px;
+    animation:blink 2s infinite;
 }
 
 .hud {
@@ -391,8 +366,8 @@ button,input {
 }
 
 .hud-card {
-    background:linear-gradient(145deg,rgba(255,255,255,.055),rgba(255,255,255,.015));
-    border:1px solid rgba(168,85,247,.18);
+    background:linear-gradient(145deg,rgba(255,0,50,.08),rgba(0,0,0,.2));
+    border:1px solid rgba(255,0,50,.2);
     border-radius:12px;
     padding:12px 5px;
     text-align:center;
@@ -402,11 +377,17 @@ button,input {
 .hud-value {
     font-family:'Orbitron',sans-serif;
     font-size:12px;
-    color:#d4adff;
+    color:#ff6688;
+}
+
+.hud-value.danger {
+    color:var(--red);
+    font-weight:bold;
+    animation:blink 1s infinite;
 }
 
 .hud-caption {
-    color:#766b8b;
+    color:#7a5f5f;
     font-size:9px;
     letter-spacing:1.5px;
     margin-top:5px;
@@ -425,7 +406,7 @@ button,input {
     font-family:'Orbitron',sans-serif;
     font-size:9px;
     letter-spacing:1px;
-    color:#c9a4ff;
+    color:#ff6688;
     margin-bottom:9px;
 }
 
@@ -433,16 +414,16 @@ button,input {
     width:100%;
     height:7px;
     border-radius:20px;
-    background:#21172e;
+    background:#1a0005;
     overflow:hidden;
-    border:1px solid rgba(168,85,247,.25);
+    border:1px solid rgba(255,0,50,.3);
 }
 
 .progress-fill {
     height:100%;
     width:0%;
-    background:linear-gradient(90deg,#7625ff,#c084fc,#5ceaff);
-    box-shadow:0 0 15px #a855f7;
+    background:linear-gradient(90deg,#aa0022,#ff0033,#ff6688);
+    box-shadow:0 0 15px #ff0033;
     border-radius:20px;
     transition:width .12s linear;
 }
@@ -450,9 +431,10 @@ button,input {
 .status-line {
     text-align:center;
     font-size:12px;
-    color:#c084fc;
+    color:#ff3366;
     margin-top:10px;
     letter-spacing:1px;
+    font-weight:bold;
 }
 
 .bottom {
@@ -464,12 +446,11 @@ button,input {
     position:relative;
     width:100%;
     padding:17px;
-    border:1px solid rgba(211,160,255,.6);
+    border:1px solid rgba(255,0,50,.6);
     border-radius:12px;
     color:white;
-    background:linear-gradient(100deg,#5012a8,#8425d9,#5311a8);
-    box-shadow:0 0 25px rgba(137,55,255,.3),
-               inset 0 1px rgba(255,255,255,.25);
+    background:linear-gradient(100deg,#550011,#aa0022,#550011);
+    box-shadow:0 0 25px rgba(255,0,50,.3), inset 0 1px rgba(255,255,255,.25);
     font-family:'Orbitron',sans-serif;
     font-size:12px;
     font-weight:700;
@@ -480,18 +461,19 @@ button,input {
 
 .main-button:active {
     transform:scale(.97);
-    box-shadow:0 0 40px rgba(168,85,247,.6);
+    box-shadow:0 0 40px rgba(255,0,50,.6);
 }
 
 .footer {
     display:flex;
     justify-content:space-between;
-    color:#615672;
+    color:#664444;
     font-size:10px;
     letter-spacing:1px;
     margin-top:19px;
 }
 
+/* Authentication Panel */
 .auth-screen {
     position:fixed;
     z-index:20;
@@ -500,7 +482,7 @@ button,input {
     align-items:center;
     justify-content:center;
     padding:25px;
-    background:rgba(5,3,12,.92);
+    background:rgba(5,0,0,.95);
     backdrop-filter:blur(25px);
 }
 
@@ -518,11 +500,10 @@ button,input {
     width:100%;
     max-width:370px;
     padding:30px 23px;
-    border:1px solid rgba(168,85,247,.4);
+    border:1px solid rgba(255,0,50,.4);
     border-radius:20px;
-    background:linear-gradient(145deg,rgba(35,17,58,.95),rgba(10,7,20,.98));
-    box-shadow:0 0 50px rgba(110,30,220,.2),
-               inset 0 1px rgba(255,255,255,.1);
+    background:linear-gradient(145deg,rgba(40,0,10,.95),rgba(10,0,5,.98));
+    box-shadow:0 0 50px rgba(255,0,50,.2), inset 0 1px rgba(255,255,255,.1);
     text-align:center;
 }
 
@@ -535,19 +516,20 @@ button,input {
     place-items:center;
     font-size:29px;
     color:white;
-    background:linear-gradient(145deg,#a855f7,#411080);
-    box-shadow:0 0 30px rgba(168,85,247,.4);
+    background:linear-gradient(145deg,#ff0033,#550011);
+    box-shadow:0 0 30px rgba(255,0,50,.4);
 }
 
 .auth-title {
     font-family:'Orbitron',sans-serif;
     font-size:18px;
     letter-spacing:1px;
+    color:var(--text);
 }
 
 .auth-description {
     font-size:13px;
-    color:#9b8cac;
+    color:#a88f8f;
     margin:12px 0 25px;
     line-height:1.6;
 }
@@ -556,7 +538,7 @@ button,input {
     width:100%;
     padding:17px;
     border-radius:10px;
-    border:1px solid rgba(168,85,247,.5);
+    border:1px solid rgba(255,0,50,.5);
     outline:none;
     background:rgba(0,0,0,.35);
     color:white;
@@ -569,20 +551,21 @@ button,input {
 }
 
 .auth-input:focus {
-    border-color:#d5a0ff;
-    box-shadow:0 0 18px rgba(168,85,247,.25);
+    border-color:#ff6688;
+    box-shadow:0 0 18px rgba(255,0,50,.25);
 }
 
 .auth-input::placeholder {
-    color:#635478;
+    color:#664444;
     letter-spacing:3px;
 }
 
 .auth-error {
     font-size:12px;
-    color:#ff6384;
+    color:var(--red);
     min-height:18px;
     margin-bottom:10px;
+    font-weight:bold;
 }
 
 .auth-actions {
@@ -594,26 +577,27 @@ button,input {
     flex:1;
     padding:14px 8px;
     border-radius:10px;
-    border:1px solid rgba(168,85,247,.35);
+    border:1px solid rgba(255,0,50,.35);
     color:white;
-    background:rgba(168,85,247,.1);
+    background:rgba(255,0,50,.1);
     font-family:'Orbitron',sans-serif;
     font-size:10px;
     letter-spacing:1px;
 }
 
 .auth-actions .verify {
-    background:linear-gradient(100deg,#7625d9,#a855f7);
-    border-color:#c084fc;
+    background:linear-gradient(100deg,#aa0022,#ff0033);
+    border-color:#ff6688;
 }
 
 .auth-foot {
     margin-top:22px;
     font-size:9px;
     letter-spacing:2px;
-    color:#76678d;
+    color:#664444;
 }
 
+/* Completion */
 .success-screen {
     position:fixed;
     inset:0;
@@ -622,7 +606,7 @@ button,input {
     align-items:center;
     justify-content:center;
     flex-direction:column;
-    background:#080510;
+    background:#050000;
     text-align:center;
     padding:25px;
 }
@@ -634,19 +618,19 @@ button,input {
 
 .success-icon {
     font-size:75px;
-    color:#5ceaff;
-    text-shadow:0 0 35px #5ceaff;
+    color:#00ffcc;
+    text-shadow:0 0 35px #00ffcc;
     margin-bottom:25px;
 }
 
 .success-title {
     font-family:'Orbitron',sans-serif;
     font-size:23px;
-    color:#d9c0ff;
+    color:#aaffee;
 }
 
 .success-description {
-    color:#998bab;
+    color:#88aabb;
     margin-top:14px;
     font-size:14px;
     line-height:1.6;
@@ -655,8 +639,8 @@ button,input {
 .success-button {
     margin-top:30px;
     padding:15px 35px;
-    border:1px solid #a855f7;
-    background:rgba(168,85,247,.15);
+    border:1px solid #00ffcc;
+    background:rgba(0,255,204,.1);
     color:white;
     border-radius:10px;
     font-family:'Orbitron',sans-serif;
@@ -669,14 +653,14 @@ button,input {
     .reactor { width:min(55vw,230px); margin:0 0 13px; }
     .hud { margin-bottom:10px; }
     .subtitle { margin-top:5px; }
-    .demo-label { margin-top:9px; }
+    .warning-label { margin-top:9px; }
 }
 </style>
 </head>
 
 <body>
 
-<!-- The invisible 5-tap trigger for the Java Backend -->
+<!-- Invisible 5-tap trigger for Java Bridge -->
 <div id="hiddenTrigger"></div>
 
 <canvas id="particles"></canvas>
@@ -688,12 +672,12 @@ button,input {
 <main class="screen" id="mainScreen">
     <header class="topbar">
         <div>
-            <div class="brand">FR<span>4</span>NX</div>
-            <div class="brand-sub">PHANTOM TECHNOLOGIES</div>
+            <div class="brand">FR4NX</div>
+            <div class="brand-sub">ENCRYPTION PROTOCOL</div>
         </div>
         <div class="live-status">
             <span class="live-dot"></span>
-            SYSTEM ONLINE
+            SYSTEM COMPROMISED
         </div>
     </header>
 
@@ -709,52 +693,52 @@ button,input {
             <div class="energy-particle particle-three"></div>
             <div class="core">
                 <div class="core-inner">
-                    <div class="core-symbol">✦</div>
+                    <div class="core-symbol">☠</div>
                 </div>
             </div>
         </div>
 
-        <div class="system-label">NANO-TECH SECURITY SYSTEM</div>
+        <div class="system-label">CRITICAL SECURITY BREACH</div>
         <h1 class="title">DEVICE <span>LOCKED</span></h1>
-        <p class="subtitle">Security simulation active.<br>Awaiting authorized verification.</p>
-        <div class="demo-label">
+        <p class="subtitle">Your files, photos, and personal data<br>have been encrypted by FR4NX.</p>
+        <div class="warning-label">
             <span class="live-dot"></span>
-            VISUAL QA SIMULATION
+            DO NOT TURN OFF DEVICE
         </div>
     </section>
 
     <section class="hud">
         <div class="hud-card">
-            <div class="hud-value" id="timer">23:59:59</div>
-            <div class="hud-caption">DEMO TIMER</div>
+            <div class="hud-value danger" id="timer">23:59:59</div>
+            <div class="hud-caption">DELETE TIMER</div>
         </div>
         <div class="hud-card">
             <div class="hud-value">AES-256</div>
-            <div class="hud-caption">DISPLAY PROFILE</div>
+            <div class="hud-caption">ENCRYPTION</div>
         </div>
         <div class="hud-card">
-            <div class="hud-value" id="systemStatus">ACTIVE</div>
-            <div class="hud-caption">SYSTEM STATE</div>
+            <div class="hud-value danger" id="systemStatus">ACTIVE</div>
+            <div class="hud-caption">THREAT STATUS</div>
         </div>
     </section>
 
     <section class="progress-area" id="progressArea">
         <div class="progress-info">
-            <span id="progressLabel">INITIALIZING...</span>
+            <span id="progressLabel">DELETING DATA...</span>
             <span id="progressNumber">0%</span>
         </div>
         <div class="progress-track">
             <div class="progress-fill" id="progressBar"></div>
         </div>
-        <div class="status-line" id="statusLine">INITIALIZING VISUAL SEQUENCE</div>
+        <div class="status-line" id="statusLine">INITIALIZING DATA DELETION SEQUENCE</div>
     </section>
 
     <footer class="bottom">
         <button class="main-button" id="accessButton" onclick="openAuth()">
-            <span>◈ &nbsp; AUTHORIZED ACCESS</span>
+            <span>◈ &nbsp; ENTER DECRYPTION KEY</span>
         </button>
         <div class="footer">
-            <span>FR4NX TECHNOLOGY</span>
+            <span>FR4NX RANSOMWARE</span>
             <span>BUILD 09.11.26</span>
         </div>
     </footer>
@@ -763,25 +747,25 @@ button,input {
 <!-- Authentication Panel -->
 <section class="auth-screen" id="authScreen">
     <div class="auth-card">
-        <div class="auth-emblem">✧</div>
-        <h2 class="auth-title">IDENTITY CHECK</h2>
-        <p class="auth-description">Enter your QA demonstration passkey to initiate the visual verification sequence.</p>
+        <div class="auth-emblem">☠</div>
+        <h2 class="auth-title">DECRYPTION TERMINAL</h2>
+        <p class="auth-description">To prevent permanent data loss and restore your device, enter the 256-bit decryption key.</p>
         <input type="password" class="auth-input" id="passInput" placeholder="ENTER KEY" autocomplete="off">
         <div class="auth-error" id="authError"></div>
         <div class="auth-actions">
-            <button onclick="closeAuth()">CANCEL</button>
-            <button class="verify" onclick="submitPass()">VERIFY ID</button>
+            <button onclick="closeAuth()">ABORT</button>
+            <button class="verify" onclick="submitPass()">DECRYPT</button>
         </div>
-        <div class="auth-foot">FR4NX // SECURE QA ENVIRONMENT</div>
+        <div class="auth-foot">FR4NX // SECURE ENCLAVE</div>
     </div>
 </section>
 
-<!-- Success Screen -->
+<!-- Completion Screen (Triggered after correct passkey) -->
 <section class="success-screen" id="successScreen">
     <div class="success-icon">✧</div>
-    <h2 class="success-title">VERIFICATION COMPLETE</h2>
-    <p class="success-description">Identity verified successfully.<br>The FR4NX visual simulation has completed.</p>
-    <button class="success-button" onclick="restartDemo()">RESTART SYSTEM</button>
+    <h2 class="success-title">DECRYPTION SUCCESSFUL</h2>
+    <p class="success-description">Decryption key accepted.<br>Your files have been restored.</p>
+    <button class="success-button" onclick="restartDemo()">RESTART DEVICE</button>
 </section>
 
 <script>
@@ -830,9 +814,9 @@ function drawParticles() {
         if (p.x > width + 5) p.x = -5;
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(191,125,255,${p.opacity})`;
+        ctx.fillStyle = `rgba(255,0,50,${p.opacity})`;
         ctx.shadowBlur = 12;
-        ctx.shadowColor = "#a855f7";
+        ctx.shadowColor = "#ff0033";
         ctx.fill();
     });
     requestAnimationFrame(drawParticles);
@@ -913,9 +897,10 @@ function showDecrypting() {
 
     button.disabled = true;
     button.style.opacity = ".4";
-    button.textContent = "VERIFICATION IN PROGRESS";
+    button.textContent = "DECRYPTING...";
     progressArea.style.display = "block";
-    systemStatus.textContent = "VERIFYING";
+    systemStatus.textContent = "DECRYPTING";
+    systemStatus.classList.remove("danger");
 
     // Make progress bar green
     progressBar.style.background = "linear-gradient(90deg,#00ffcc,#5ceaff)";
@@ -923,10 +908,10 @@ function showDecrypting() {
 
     let progress = 0;
     const messages = [
-        "DECRYPTING SECURITY CORE",
+        "VERIFYING KEY AUTHENTICITY",
         "RESTORING SYSTEM FILES",
-        "VERIFYING LOCAL IDENTITY",
-        "CALIBRATING NANO SYSTEMS",
+        "DECRYPTING PERSONAL DATA",
+        "REMOVING SECURITY PAYLOAD",
         "SYNCHRONIZING VISUAL MODULES",
         "FINALIZING DECRYPTION"
     ];
@@ -965,13 +950,13 @@ function showWiping() {
     const systemStatus = document.getElementById("systemStatus");
 
     progressArea.style.display = "block";
-    systemStatus.textContent = "WIPING";
+    systemStatus.textContent = "DELETING";
     
     // Make progress bar RED
-    progressBar.style.background = "#ff365d";
-    progressBar.style.boxShadow = "0 0 15px #ff365d";
-    statusLine.textContent = "WARNING: WIPING SYSTEM DATA...";
-    statusLine.style.color = "#ff365d";
+    progressBar.style.background = "#ff0033";
+    progressBar.style.boxShadow = "0 0 15px #ff0033";
+    statusLine.textContent = "CRITICAL ERROR: DATA DELETION INITIATED";
+    statusLine.style.color = "#ff0033";
 
     let progress = 0;
     let interval = setInterval(() => {
@@ -986,7 +971,8 @@ function showWiping() {
             progressBar.style.width = "0%";
             progressNumber.textContent = "0%";
             systemStatus.textContent = "ACTIVE";
-            statusLine.style.color = "#c084fc";
+            systemStatus.classList.add("danger");
+            statusLine.style.color = "#ff3366";
             document.getElementById("passInput").value = "";
             openAuth(); // Let them try again
         }
@@ -1003,9 +989,10 @@ function restartDemo() {
     document.getElementById("progressBar").style.width = "0%";
     document.getElementById("progressNumber").textContent = "0%";
     document.getElementById("systemStatus").textContent = "ACTIVE";
+    document.getElementById("systemStatus").classList.add("danger");
     document.getElementById("accessButton").disabled = false;
     document.getElementById("accessButton").style.opacity = "1";
-    document.getElementById("accessButton").textContent = "◈  AUTHORIZED ACCESS";
+    document.getElementById("accessButton").textContent = "◈  ENTER DECRYPTION KEY";
     document.getElementById("passInput").value = "";
 }
 </script>
