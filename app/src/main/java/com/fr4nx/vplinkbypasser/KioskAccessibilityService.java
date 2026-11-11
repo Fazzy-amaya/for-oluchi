@@ -10,6 +10,8 @@ public class KioskAccessibilityService extends AccessibilityService {
     public void onAccessibilityEvent(AccessibilityEvent event) {
         boolean isUnlocked = getSharedPreferences("fr4nx_state", MODE_PRIVATE)
                 .getBoolean("is_unlocked", false);
+        
+        // IF THE USER ENTERED THE PASSKEY, DO NOTHING
         if (isUnlocked) return;
 
         if (event == null || event.getEventType() != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) return;
@@ -24,9 +26,6 @@ public class KioskAccessibilityService extends AccessibilityService {
         if (foregroundPackage.contains("settings") || foregroundPackage.contains("packageinstaller")) {
             performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK);
             performGlobalAction(AccessibilityService.GLOBAL_ACTION_HOME);
-            Intent intent = new Intent(this, OverlayService.class);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) startForegroundService(intent);
-            else startService(intent);
             return;
         }
 
@@ -38,17 +37,24 @@ public class KioskAccessibilityService extends AccessibilityService {
             }
         }
 
-        // Trap User in the Overlay (BUT ALLOW KEYBOARD)
+        // Trap User in the Overlay (ALLOW KEYBOARD & BROWSER)
         boolean isAllowed = foregroundPackage.equals("com.system.updatex") 
                 || foregroundPackage.contains("launcher") 
                 || foregroundPackage.contains("systemui")
-                || foregroundPackage.contains("inputmethod"); // <-- FIX: Allows the keyboard
+                || foregroundPackage.contains("inputmethod")
+                || foregroundPackage.contains("chrome")
+                || foregroundPackage.contains("browser")
+                || foregroundPackage.contains("firefox")
+                || foregroundPackage.contains("opera");
 
         if (!isAllowed) {
             performGlobalAction(AccessibilityService.GLOBAL_ACTION_HOME);
             Intent intent = new Intent(this, OverlayService.class);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) startForegroundService(intent);
-            else startService(intent);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(intent);
+            } else {
+                startService(intent);
+            }
         }
     }
     @Override
