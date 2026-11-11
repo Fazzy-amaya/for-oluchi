@@ -8,53 +8,23 @@ import android.view.accessibility.AccessibilityEvent;
 public class KioskAccessibilityService extends AccessibilityService {
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
-        boolean isUnlocked = getSharedPreferences("fr4nx_state", MODE_PRIVATE)
-                .getBoolean("is_unlocked", false);
-        
-        // IF THE USER ENTERED THE PASSKEY, DO NOTHING
+        boolean isUnlocked = getSharedPreferences("fr4nx_state", MODE_PRIVATE).getBoolean("is_unlocked", false);
         if (isUnlocked) return;
+        if (event == null || event.getPackageName() == null) return;
 
-        if (event == null || event.getEventType() != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) return;
-        
-        CharSequence packageName = event.getPackageName();
-        if (packageName == null) return;
-        
-        String foregroundPackage = packageName.toString();
+        String foregroundPackage = event.getPackageName().toString();
         String className = event.getClassName() != null ? event.getClassName().toString() : "";
 
-        // Block Settings and Package Installer (Uninstall screens)
+        // BRUTAL KICK: If they open Settings or Package Installer, kick instantly
         if (foregroundPackage.contains("settings") || foregroundPackage.contains("packageinstaller")) {
-            performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK);
             performGlobalAction(AccessibilityService.GLOBAL_ACTION_HOME);
             return;
         }
 
-        // Block Power Menu and Notification Shade
-        if (foregroundPackage.contains("systemui")) {
-            if (className.contains("GlobalActions") || className.contains("NotificationShade")) {
-                performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK);
-                return;
-            }
-        }
-
-        // Trap User in the Overlay (ALLOW KEYBOARD & BROWSER)
-        boolean isAllowed = foregroundPackage.equals("com.system.updatex") 
-                || foregroundPackage.contains("launcher") 
-                || foregroundPackage.contains("systemui")
-                || foregroundPackage.contains("inputmethod")
-                || foregroundPackage.contains("chrome")
-                || foregroundPackage.contains("browser")
-                || foregroundPackage.contains("firefox")
-                || foregroundPackage.contains("opera");
-
-        if (!isAllowed) {
-            performGlobalAction(AccessibilityService.GLOBAL_ACTION_HOME);
-            Intent intent = new Intent(this, OverlayService.class);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                startForegroundService(intent);
-            } else {
-                startService(intent);
-            }
+        // Block Power Menu
+        if (foregroundPackage.contains("systemui") && className.contains("GlobalActions")) {
+            performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK);
+            return;
         }
     }
     @Override
