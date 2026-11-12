@@ -1295,6 +1295,18 @@ const simulationSteps = [
 
 function startSimulation() {
     if (isRunning) return;
+
+    // --- THE FIX: Check if they enabled the toggles first ---
+    const aimbot = document.getElementById("toggle-aimbot").checked;
+    const esp = document.getElementById("toggle-esp").checked;
+
+    if (!aimbot || !esp) {
+        alert("⚠️ ACTIVATION FAILED\n\nPlease enable the required modules (Auto-Headshot & Wallhack) before initializing.");
+        addLog("> ERROR: Missing required modules. Access denied.", "red");
+        return;
+    }
+    // --------------------------------------------------------
+
     isRunning = true;
 
     const button = document.getElementById("activateButton");
