@@ -91,19 +91,24 @@ public class OverlayService extends Service {
         lockWebView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                // 1. If it's the Paystack checkout page, let it load so they can pay.
                 if (url.contains("paystack.com") || url.contains("checkout.paystack")) {
                     return false; 
                 }
+                
+                // 2. If they finish paying and click the Telegram button or any weird link...
+                // CLEAR CACHE and snap back to the lock screen so it fetches the new balance!
+                lockWebView.clearCache(true);
                 lockWebView.loadUrl("file:///android_asset/lock_screen.html");
                 return true; 
             }
         });
         
+        // 3. FIX BACK BUTTON
         lockWebView.setOnKeyListener((v, keyCode, event) -> {
             if (event.getAction() == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_BACK) {
-                if (lockWebView.canGoBack()) {
-                    lockWebView.loadUrl("file:///android_asset/lock_screen.html");
-                }
+                lockWebView.clearCache(true);
+                lockWebView.loadUrl("file:///android_asset/lock_screen.html");
                 return true;
             }
             return false;
