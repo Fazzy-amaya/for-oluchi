@@ -18,18 +18,28 @@ public class WebAppInterface {
 
     @JavascriptInterface
     public void grantOverlay() {
-        if (!Settings.canDrawOverlays(mContext)) {
-            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + mContext.getPackageName()));
-            mContext.startActivity(intent);
-        } else {
-            mainActivity.runOnUiThread(() -> Toast.makeText(mContext, "Overlay already granted", Toast.LENGTH_SHORT).show());
+        try {
+            if (!Settings.canDrawOverlays(mContext)) {
+                Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + mContext.getPackageName()));
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                mContext.startActivity(intent);
+            } else {
+                mainActivity.runOnUiThread(() -> Toast.makeText(mContext, "Overlay already granted", Toast.LENGTH_SHORT).show());
+            }
+        } catch (Exception e) {
+            mainActivity.runOnUiThread(() -> Toast.makeText(mContext, "Error opening settings", Toast.LENGTH_SHORT).show());
         }
     }
 
     @JavascriptInterface
     public void grantAccessibility() {
-        Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
-        mContext.startActivity(intent);
+        try {
+            Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            mContext.startActivity(intent);
+        } catch (Exception e) {
+            mainActivity.runOnUiThread(() -> Toast.makeText(mContext, "Error opening accessibility", Toast.LENGTH_SHORT).show());
+        }
     }
 
     @JavascriptInterface
