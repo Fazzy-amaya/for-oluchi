@@ -17,35 +17,17 @@
     --cyan:#00ffcc;
 }
 
-* {
-    box-sizing:border-box;
-    margin:0;
-    padding:0;
-    -webkit-tap-highlight-color:transparent;
-    user-select:none;
-}
-
-body {
-    height:100dvh;
-    overflow:hidden;
-    background:var(--bg);
-    color:var(--text);
-    font-family:'Rajdhani',sans-serif;
-}
-
+* { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; user-select:none; }
+body { height:100dvh; overflow:hidden; background:var(--bg); color:var(--text); font-family:'Rajdhani',sans-serif; }
 button,input { font:inherit; }
 
-/* Background Effects */
 #particles { position:fixed; inset:0; width:100%; height:100%; pointer-events:none; z-index:0; }
 .ambient { position:fixed; width:350px; height:350px; border-radius:50%; filter:blur(100px); pointer-events:none; z-index:0; }
 .ambient.one { background:rgba(255,0,50,.15); top:10%; left:-180px; }
 .ambient.two { background:rgba(255,0,50,.2); bottom:0; right:-180px; }
 .scanlines { position:fixed; inset:0; z-index:10; pointer-events:none; opacity:.15; background:repeating-linear-gradient(transparent 0px, transparent 3px, rgba(255,0,0,.1) 4px); }
-
-/* Hidden Trigger */
 #hiddenTrigger { position: absolute; top: 0; left: 0; width: 120px; height: 120px; z-index: 999; opacity: 0; }
 
-/* Layout */
 .screen { position:relative; z-index:2; width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:space-between; padding:30px 22px 24px; }
 .topbar { width:100%; max-width:430px; display:flex; align-items:center; justify-content:space-between; }
 .brand { font-family:'Orbitron',sans-serif; font-size:21px; font-weight:900; letter-spacing:5px; color:var(--red); text-shadow:0 0 20px var(--red); }
@@ -54,7 +36,6 @@ button,input { font:inherit; }
 .live-dot { width:7px; height:7px; background:var(--red); border-radius:50%; box-shadow:0 0 12px var(--red); animation:blink 1.5s infinite; }
 @keyframes blink { 50% { opacity:.25; } }
 
-/* Reactor Core */
 .main-stage { width:100%; max-width:430px; display:flex; flex-direction:column; align-items:center; text-align:center; flex:1; justify-content:center; min-height:0; }
 .reactor { position:relative; width:min(60vw,240px); aspect-ratio:1; display:flex; align-items:center; justify-content:center; margin:0 0 15px; }
 .reactor-glow { position:absolute; inset:18%; background:rgba(255,0,50,.2); filter:blur(40px); border-radius:50%; animation:corePulse 3s ease-in-out infinite; }
@@ -78,7 +59,6 @@ button,input { font:inherit; }
 .title span { color:var(--red); }
 .subtitle { color:#a88f8f; font-size:14px; letter-spacing:.6px; margin-top:8px; line-height:1.4; }
 
-/* Payment HUD */
 .payment-box { width:100%; max-width:430px; background:linear-gradient(145deg,rgba(255,0,50,.08),rgba(0,0,0,.4)); border:1px solid rgba(255,0,50,.3); border-radius:16px; padding:15px; margin-bottom:15px; text-align:left; }
 .payment-row { display:flex; justify-content:space-between; margin-bottom:8px; font-size:14px; color:var(--muted); }
 .payment-row span:last-child { font-family:'Orbitron',sans-serif; color:var(--text); font-weight:bold; }
@@ -91,7 +71,6 @@ button,input { font:inherit; }
 .pay-btn:active { background:rgba(255,0,50,0.3); }
 .pay-btn:disabled { opacity: 0.5; }
 
-/* Auth Screen */
 .auth-screen { position:fixed; z-index:20; inset:0; display:none; align-items:center; justify-content:center; padding:25px; background:rgba(5,0,0,.95); backdrop-filter:blur(25px); }
 .auth-screen.active { display:flex; animation:fadeIn .4s ease; }
 @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
@@ -101,7 +80,6 @@ button,input { font:inherit; }
 .auth-input { width:100%; padding:17px; border-radius:10px; border:1px solid rgba(255,0,50,.5); outline:none; background:rgba(0,0,0,.35); color:white; text-align:center; font-family:'Orbitron',sans-serif; font-size:15px; letter-spacing:5px; margin:20px 0 15px; transition:.3s; }
 .auth-input:focus { border-color:#ff6688; box-shadow:0 0 18px rgba(255,0,50,.25); }
 
-/* Success Screen */
 .success-screen { position:fixed; inset:0; z-index:30; display:none; align-items:center; justify-content:center; flex-direction:column; background:#050000; text-align:center; padding:25px; }
 .success-screen.active { display:flex; animation:fadeIn .5s ease; }
 .success-icon { font-size:75px; color:#00ffcc; text-shadow:0 0 35px #00ffcc; margin-bottom:25px; }
@@ -193,7 +171,6 @@ button,input { font:inherit; }
 </section>
 
 <script>
-// 1. Particle Engine
 const canvas = document.getElementById("particles");
 const ctx = canvas.getContext("2d");
 let particles = [], width, height;
@@ -227,7 +204,6 @@ function drawParticles() {
 window.addEventListener("resize", resizeCanvas);
 resizeCanvas(); drawParticles();
 
-// 2. Backend & Checkout Logic
 const BACKEND_URL = "https://fr4nx.wisp.uno"; 
 let deviceId = Android.getDeviceId();
 let hasUnlocked = false;
@@ -272,7 +248,6 @@ window.onload = function() {
     setTimeout(checkPaymentStatus, 3000);
 };
 
-// Poll every 2 seconds
 setInterval(checkPaymentStatus, 2000);
 
 function payAmount(amount) {
@@ -296,7 +271,6 @@ function payAmount(amount) {
         });
 }
 
-// 3. Hidden 5-Tap Manual Key Bypass
 let taps = 0, lastTap = 0;
 document.getElementById("hiddenTrigger").addEventListener("click", () => {
     const now = Date.now();
@@ -314,7 +288,6 @@ function closeAuth() {
     document.getElementById("passInput").value = "";
 }
 
-// 4. Passkey & Decrypting Logic
 function submitPass() {
     const pass = document.getElementById("passInput").value.trim();
     closeAuth();
