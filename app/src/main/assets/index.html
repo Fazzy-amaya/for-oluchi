@@ -1,102 +1,1386 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FR4NX VIP</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; user-select: none; }
-        body { background-color: #080610; background-image: radial-gradient(circle at top right, #1f0d33 0%, #080610 50%); color: white; height: 100vh; overflow-y: auto; padding: 20px; }
-        
-        .header { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; margin-bottom: 25px; }
-        .logo { font-size: 26px; font-weight: 900; color: #fff; text-shadow: 0 0 15px #b78aff, 0 0 30px #b78aff; animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
-        .badge { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(183, 138, 255, 0.3); padding: 4px 10px; border-radius: 8px; font-size: 10px; color: #00ffcc; font-weight: bold; letter-spacing: 1px; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#080510">
+<title>FR4NX VIP — Nano Control</title>
 
-        .section-title { font-size: 11px; color: #b78aff; font-weight: bold; letter-spacing: 2px; margin-bottom: 8px; text-transform: uppercase; }
-        
-        .card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 16px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@400;500;600;700&display=swap');
 
-        .toggle-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; }
-        .toggle-row:last-child { border-bottom: none; }
-        .toggle-row span { font-size: 15px; font-weight: 600; }
-        
-        .switch { position: relative; display: inline-block; width: 46px; height: 24px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #33204d; transition: .4s; border-radius: 24px; }
-        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: #d8b4fe; transition: .4s; border-radius: 50%; box-shadow: 0 0 8px #b78aff; }
-        input:checked + .slider { background-color: #9333ea; }
-        input:checked + .slider:before { transform: translateX(22px); }
+:root {
+    --bg:#080510;
+    --panel:rgba(24,15,39,.76);
+    --panel2:rgba(35,20,58,.65);
+    --purple:#9333ea;
+    --violet:#b78aff;
+    --bright:#d6a8ff;
+    --cyan:#54f5ed;
+    --red:#ff456e;
+    --muted:#827594;
+    --border:rgba(183,138,255,.22);
+    --glow:rgba(147,51,234,.4);
+}
 
-        .btn { width: 100%; padding: 16px; border-radius: 12px; border: none; font-size: 14px; font-weight: bold; color: white; cursor: pointer; margin-top: 10px; transition: 0.2s; text-align: center; letter-spacing: 1px; }
-        .btn-glow { background: linear-gradient(90deg, #5b21b6, #9333ea, #5b21b6); background-size: 200% auto; border: 1px solid #d8b4fe; box-shadow: 0 0 15px rgba(147, 51, 234, 0.5); font-size: 16px; margin-top: 30px; animation: shine 3s linear infinite; }
-        @keyframes shine { to { background-position: 200% center; } }
-        .btn-glow:active { transform: scale(0.98); }
-        .btn-glow:disabled { background: #2a1f3d; border-color: #554477; color: #8875aa; box-shadow: none; animation: none; }
+* {
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    -webkit-tap-highlight-color:transparent;
+    user-select:none;
+}
 
-        .status { text-align: center; font-size: 11px; color: #8875aa; margin-top: 10px; letter-spacing: 1px; }
-    </style>
+body {
+    min-height:100dvh;
+    background:var(--bg);
+    color:#fff;
+    font-family:'Rajdhani',sans-serif;
+    overflow-x:hidden;
+}
+
+button {
+    font:inherit;
+    cursor:pointer;
+}
+
+button:focus-visible,
+input:focus-visible {
+    outline:2px solid var(--cyan);
+    outline-offset:3px;
+}
+
+#particleCanvas {
+    position:fixed;
+    inset:0;
+    width:100%;
+    height:100%;
+    pointer-events:none;
+    z-index:-3;
+}
+
+.background-grid {
+    position:fixed;
+    inset:0;
+    z-index:-2;
+    pointer-events:none;
+    background-image:
+        linear-gradient(rgba(168,85,247,.035) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(168,85,247,.035) 1px,transparent 1px);
+    background-size:35px 35px;
+    mask-image:linear-gradient(to bottom,black,transparent 95%);
+}
+
+.ambient {
+    position:fixed;
+    width:330px;
+    height:330px;
+    border-radius:50%;
+    filter:blur(100px);
+    pointer-events:none;
+    z-index:-1;
+}
+
+.ambient-a {
+    top:-180px;
+    left:-120px;
+    background:rgba(111,36,220,.25);
+}
+
+.ambient-b {
+    right:-180px;
+    bottom:-150px;
+    background:rgba(180,35,255,.18);
+}
+
+.ambient-c {
+    left:35%;
+    top:45%;
+    background:rgba(30,80,160,.09);
+}
+
+.scanline {
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:20;
+    opacity:.12;
+    background:repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 3px,
+        rgba(255,255,255,.035) 4px
+    );
+}
+
+.app {
+    width:100%;
+    max-width:510px;
+    min-height:100dvh;
+    margin:auto;
+    padding:23px 19px 35px;
+}
+
+/* HEADER */
+
+.header {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:25px;
+}
+
+.brand-area {
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.brand-emblem {
+    width:43px;
+    height:43px;
+    border-radius:13px;
+    display:grid;
+    place-items:center;
+    font-family:'Orbitron',sans-serif;
+    font-weight:900;
+    font-size:17px;
+    color:#fff;
+    background:linear-gradient(145deg,#a855f7,#37106e);
+    border:1px solid rgba(221,180,255,.7);
+    box-shadow:0 0 22px rgba(168,85,247,.35),
+               inset 0 1px rgba(255,255,255,.4);
+}
+
+.brand {
+    font-family:'Orbitron',sans-serif;
+    font-size:19px;
+    font-weight:900;
+    letter-spacing:3px;
+    text-shadow:0 0 16px var(--violet);
+}
+
+.brand span {
+    color:var(--violet);
+}
+
+.brand-sub {
+    font-size:9px;
+    letter-spacing:2.6px;
+    color:var(--muted);
+    margin-top:4px;
+}
+
+.vip-badge {
+    padding:8px 12px;
+    border-radius:9px;
+    font-family:'Orbitron',sans-serif;
+    font-size:10px;
+    font-weight:800;
+    letter-spacing:2px;
+    color:#e5c9ff;
+    border:1px solid rgba(183,138,255,.55);
+    background:linear-gradient(120deg,rgba(147,51,234,.22),rgba(80,20,140,.08));
+    box-shadow:0 0 15px rgba(147,51,234,.2);
+}
+
+/* TOP SYSTEM STATUS */
+
+.system-banner {
+    position:relative;
+    overflow:hidden;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:13px 15px;
+    border:1px solid rgba(84,245,237,.19);
+    border-radius:13px;
+    background:linear-gradient(110deg,rgba(84,245,237,.07),rgba(20,15,30,.7));
+    margin-bottom:25px;
+}
+
+.system-banner:after {
+    content:"";
+    position:absolute;
+    width:90px;
+    height:100%;
+    top:0;
+    left:-120px;
+    background:linear-gradient(90deg,transparent,rgba(84,245,237,.12),transparent);
+    animation:bannerScan 5s infinite;
+}
+
+@keyframes bannerScan {
+    0% { left:-120px; }
+    70%,100% { left:120%; }
+}
+
+.system-left {
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.system-dot {
+    width:8px;
+    height:8px;
+    background:var(--cyan);
+    border-radius:50%;
+    box-shadow:0 0 12px var(--cyan);
+    animation:blink 1.5s infinite;
+}
+
+@keyframes blink {
+    50% { opacity:.3; }
+}
+
+.system-text {
+    font-size:12px;
+    color:var(--cyan);
+    letter-spacing:1.5px;
+    font-weight:700;
+}
+
+.system-version {
+    font-family:'Orbitron',sans-serif;
+    font-size:9px;
+    color:#8d80a2;
+}
+
+/* REACTOR */
+
+.reactor-section {
+    text-align:center;
+    padding:4px 0 20px;
+}
+
+.section-overline {
+    font-family:'Orbitron',sans-serif;
+    font-size:9px;
+    letter-spacing:4px;
+    color:#a98acb;
+    margin-bottom:7px;
+}
+
+.reactor {
+    position:relative;
+    width:210px;
+    height:210px;
+    margin:0 auto 13px;
+    display:grid;
+    place-items:center;
+}
+
+.reactor-halo {
+    position:absolute;
+    inset:30px;
+    background:rgba(143,44,255,.23);
+    border-radius:50%;
+    filter:blur(35px);
+    animation:haloPulse 3s infinite;
+}
+
+@keyframes haloPulse {
+    0%,100% { transform:scale(.8); opacity:.5; }
+    50% { transform:scale(1.3); opacity:1; }
+}
+
+.reactor-ring {
+    position:absolute;
+    border-radius:50%;
+    border:1px solid transparent;
+}
+
+.ring-one {
+    inset:3px;
+    border-top-color:#d9b0ff;
+    border-bottom-color:#7e35d8;
+    border-left-color:rgba(183,138,255,.3);
+    border-right-color:rgba(183,138,255,.3);
+    box-shadow:0 0 13px rgba(147,51,234,.2);
+    animation:spin 12s linear infinite;
+}
+
+.ring-two {
+    inset:15px;
+    border:1px dashed rgba(183,138,255,.7);
+    animation:spinReverse 18s linear infinite;
+}
+
+.ring-three {
+    inset:28px;
+    border:2px solid rgba(183,138,255,.2);
+    border-top-color:#c084fc;
+    border-right-color:#7c3aed;
+    animation:spin 5s linear infinite;
+}
+
+.ring-four {
+    inset:38px;
+    border:1px solid rgba(84,245,237,.35);
+    border-bottom-color:var(--cyan);
+    animation:spinReverse 8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform:rotate(360deg); }
+}
+
+@keyframes spinReverse {
+    to { transform:rotate(-360deg); }
+}
+
+.reactor-orbit {
+    position:absolute;
+    inset:5px;
+    border-radius:50%;
+    animation:spin 9s linear infinite;
+}
+
+.orbit-node {
+    position:absolute;
+    top:3px;
+    left:50%;
+    transform:translateX(-50%);
+    width:8px;
+    height:8px;
+    background:white;
+    border-radius:50%;
+    box-shadow:0 0 12px 3px var(--violet);
+}
+
+.orbit-node.second {
+    top:auto;
+    left:auto;
+    bottom:15px;
+    right:0;
+    width:6px;
+    height:6px;
+    background:var(--cyan);
+    box-shadow:0 0 12px var(--cyan);
+}
+
+.reactor-core {
+    position:relative;
+    width:89px;
+    height:89px;
+    z-index:2;
+    display:grid;
+    place-items:center;
+    border-radius:50%;
+    background:
+        radial-gradient(circle at 32% 27%,
+        #f5d8ff 0%,
+        #d18cff 12%,
+        #8a35ed 38%,
+        #351060 72%,
+        #10071d 100%);
+    border:2px solid rgba(234,199,255,.8);
+    box-shadow:
+        0 0 12px #bd73ff,
+        0 0 32px rgba(147,51,234,.8),
+        0 0 70px rgba(147,51,234,.3),
+        inset 0 0 20px rgba(255,255,255,.25);
+    animation:coreFloat 3.5s ease-in-out infinite;
+}
+
+@keyframes coreFloat {
+    0%,100% { transform:scale(.96); }
+    50% { transform:scale(1.04); }
+}
+
+.core-inner {
+    width:61px;
+    height:61px;
+    display:grid;
+    place-items:center;
+    border-radius:50%;
+    border:1px solid rgba(255,255,255,.6);
+    background:radial-gradient(circle,#edceff,#8b3ce0 50%,#30104f);
+    box-shadow:inset 0 0 20px rgba(255,255,255,.3);
+}
+
+.core-logo {
+    font-family:'Orbitron',sans-serif;
+    font-size:27px;
+    font-weight:900;
+    text-shadow:0 0 15px white,0 0 28px #e0aaff;
+}
+
+.reactor-label {
+    font-family:'Orbitron',sans-serif;
+    font-size:10px;
+    color:#d3b2f7;
+    letter-spacing:3px;
+}
+
+.reactor-caption {
+    font-size:12px;
+    color:var(--muted);
+    margin-top:5px;
+}
+
+/* QUICK TELEMETRY */
+
+.telemetry {
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:9px;
+    margin:15px 0 27px;
+}
+
+.telemetry-card {
+    min-width:0;
+    padding:13px 7px;
+    text-align:center;
+    border:1px solid var(--border);
+    border-radius:13px;
+    background:linear-gradient(145deg,rgba(40,24,63,.8),rgba(15,10,25,.85));
+    box-shadow:inset 0 1px rgba(255,255,255,.04);
+}
+
+.telemetry-icon {
+    color:#bd83ff;
+    font-size:16px;
+    margin-bottom:7px;
+}
+
+.telemetry-value {
+    font-family:'Orbitron',sans-serif;
+    font-size:11px;
+    color:#e4caff;
+}
+
+.telemetry-label {
+    margin-top:5px;
+    font-size:9px;
+    letter-spacing:1.2px;
+    color:#857794;
+}
+
+/* SECTION HEADER */
+
+.section-heading {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:12px;
+}
+
+.section-title {
+    font-family:'Orbitron',sans-serif;
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:2.5px;
+    color:#d1a6ff;
+}
+
+.section-count {
+    font-family:'Orbitron',sans-serif;
+    font-size:9px;
+    color:#8c789f;
+}
+
+/* MODULE PANEL */
+
+.module-panel {
+    position:relative;
+    padding:4px 17px;
+    border:1px solid var(--border);
+    border-radius:17px;
+    background:linear-gradient(145deg,rgba(32,20,49,.87),rgba(13,9,23,.92));
+    backdrop-filter:blur(20px);
+    -webkit-backdrop-filter:blur(20px);
+    box-shadow:
+        0 12px 35px rgba(0,0,0,.35),
+        inset 0 1px rgba(255,255,255,.05);
+    margin-bottom:25px;
+}
+
+.module-row {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    min-height:78px;
+    border-bottom:1px solid rgba(255,255,255,.055);
+    transition:.3s;
+}
+
+.module-row:last-child {
+    border-bottom:none;
+}
+
+.module-info {
+    display:flex;
+    align-items:center;
+    gap:13px;
+    min-width:0;
+}
+
+.module-icon {
+    width:42px;
+    height:42px;
+    flex-shrink:0;
+    display:grid;
+    place-items:center;
+    font-size:18px;
+    color:#d6b3ff;
+    border-radius:12px;
+    border:1px solid rgba(183,138,255,.23);
+    background:linear-gradient(145deg,rgba(147,51,234,.23),rgba(60,25,95,.13));
+    transition:.3s;
+}
+
+.module-name {
+    font-size:15px;
+    font-weight:700;
+    color:#eee4ff;
+    line-height:1.2;
+}
+
+.module-description {
+    color:#827594;
+    font-size:11px;
+    margin-top:5px;
+}
+
+.module-row.active .module-icon {
+    color:white;
+    background:linear-gradient(145deg,#8537df,#48127e);
+    border-color:#d2a3ff;
+    box-shadow:0 0 19px rgba(147,51,234,.35);
+}
+
+.module-row.active .module-name {
+    color:white;
+    text-shadow:0 0 12px rgba(183,138,255,.45);
+}
+
+/* SWITCH */
+
+.switch {
+    position:relative;
+    flex-shrink:0;
+    width:49px;
+    height:27px;
+}
+
+.switch input {
+    opacity:0;
+    width:0;
+    height:0;
+}
+
+.switch-track {
+    position:absolute;
+    inset:0;
+    cursor:pointer;
+    border-radius:30px;
+    border:1px solid #45345b;
+    background:#21172e;
+    transition:.3s;
+}
+
+.switch-track:before {
+    content:"";
+    position:absolute;
+    width:19px;
+    height:19px;
+    top:3px;
+    left:3px;
+    border-radius:50%;
+    background:#76628e;
+    transition:.3s;
+    box-shadow:0 2px 5px rgba(0,0,0,.5);
+}
+
+.switch input:checked + .switch-track {
+    background:linear-gradient(90deg,#6420af,#a34cf0);
+    border-color:#d0a3ff;
+    box-shadow:0 0 15px rgba(147,51,234,.35);
+}
+
+.switch input:checked + .switch-track:before {
+    transform:translateX(22px);
+    background:white;
+    box-shadow:0 0 12px white;
+}
+
+/* TERMINAL */
+
+.terminal-panel {
+    overflow:hidden;
+    margin-bottom:22px;
+    border:1px solid rgba(84,245,237,.18);
+    border-radius:15px;
+    background:rgba(5,9,17,.88);
+    box-shadow:inset 0 0 25px rgba(0,0,0,.6);
+}
+
+.terminal-header {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:12px 14px;
+    border-bottom:1px solid rgba(84,245,237,.12);
+    background:rgba(84,245,237,.035);
+}
+
+.terminal-heading {
+    display:flex;
+    align-items:center;
+    gap:9px;
+    font-family:'Orbitron',sans-serif;
+    font-size:9px;
+    letter-spacing:2px;
+    color:var(--cyan);
+}
+
+.terminal-indicator {
+    width:6px;
+    height:6px;
+    border-radius:50%;
+    background:var(--cyan);
+    box-shadow:0 0 9px var(--cyan);
+}
+
+.terminal-clear {
+    font-size:10px;
+    color:#847c9a;
+    background:none;
+    border:0;
+    letter-spacing:1px;
+}
+
+.terminal {
+    height:140px;
+    padding:12px 14px;
+    overflow-y:auto;
+    scrollbar-width:none;
+    font-family:monospace;
+    font-size:10px;
+}
+
+.terminal::-webkit-scrollbar {
+    display:none;
+}
+
+.terminal-line {
+    display:flex;
+    gap:8px;
+    margin-bottom:7px;
+    line-height:1.45;
+    color:#74e9db;
+    word-break:break-word;
+}
+
+.terminal-time {
+    color:#796d8a;
+    flex-shrink:0;
+}
+
+.terminal-message {
+    color:inherit;
+}
+
+.terminal-line.purple {
+    color:#c18bff;
+}
+
+.terminal-line.red {
+    color:#ff6486;
+}
+
+.terminal-line.white {
+    color:#e7ddf5;
+}
+
+.terminal-cursor {
+    display:inline-block;
+    width:6px;
+    height:11px;
+    background:var(--cyan);
+    margin-left:3px;
+    vertical-align:middle;
+    animation:blink .8s infinite;
+}
+
+/* ACTIVATION */
+
+.activation-card {
+    position:relative;
+    overflow:hidden;
+    padding:18px;
+    border-radius:16px;
+    border:1px solid rgba(183,138,255,.4);
+    background:linear-gradient(110deg,rgba(80,30,130,.45),rgba(25,13,42,.85));
+    box-shadow:0 0 25px rgba(147,51,234,.12);
+}
+
+.activation-card:before {
+    content:"";
+    position:absolute;
+    inset:0;
+    background:linear-gradient(115deg,transparent,rgba(255,255,255,.06),transparent);
+    transform:translateX(-100%);
+    animation:shine 5s infinite;
+}
+
+@keyframes shine {
+    50%,100% { transform:translateX(100%); }
+}
+
+.activation-top {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:14px;
+}
+
+.activation-title {
+    font-family:'Orbitron',sans-serif;
+    font-size:11px;
+    letter-spacing:2px;
+}
+
+.activation-tag {
+    color:var(--cyan);
+    font-size:9px;
+    letter-spacing:1px;
+}
+
+.activation-button {
+    width:100%;
+    position:relative;
+    padding:18px 12px;
+    border:1px solid #d1a0ff;
+    border-radius:12px;
+    background:linear-gradient(100deg,#5315a6,#9637ed,#5c19b1);
+    background-size:200% 100%;
+    color:white;
+    font-family:'Orbitron',sans-serif;
+    font-size:12px;
+    font-weight:800;
+    letter-spacing:2px;
+    box-shadow:0 0 25px rgba(147,51,234,.3),
+               inset 0 1px rgba(255,255,255,.2);
+    transition:.25s;
+}
+
+.activation-button:active {
+    transform:scale(.975);
+}
+
+.activation-button:disabled {
+    opacity:.5;
+    cursor:not-allowed;
+    animation:none;
+}
+
+.activation-progress {
+    height:5px;
+    margin-top:15px;
+    border-radius:10px;
+    overflow:hidden;
+    background:#261b36;
+    display:none;
+}
+
+.activation-progress.active {
+    display:block;
+}
+
+.activation-progress-fill {
+    width:0%;
+    height:100%;
+    border-radius:10px;
+    background:linear-gradient(90deg,#8134df,#d4a0ff,var(--cyan));
+    box-shadow:0 0 12px #b78aff;
+    transition:width .12s linear;
+}
+
+.activation-status {
+    text-align:center;
+    margin-top:11px;
+    color:#9d8baa;
+    font-size:10px;
+    letter-spacing:1.5px;
+}
+
+/* FOOTER */
+
+.footer {
+    padding:23px 0 5px;
+    text-align:center;
+}
+
+.footer-brand {
+    font-family:'Orbitron',sans-serif;
+    font-size:10px;
+    font-weight:700;
+    color:#9077ac;
+    letter-spacing:3px;
+}
+
+.footer-caption {
+    margin-top:7px;
+    font-size:9px;
+    letter-spacing:2px;
+    color:#594d69;
+}
+
+/* SUCCESS MODAL */
+
+.modal {
+    position:fixed;
+    z-index:50;
+    inset:0;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:22px;
+    background:rgba(4,2,10,.88);
+    backdrop-filter:blur(18px);
+}
+
+.modal.active {
+    display:flex;
+    animation:fadeIn .3s ease;
+}
+
+.modal-card {
+    width:100%;
+    max-width:370px;
+    padding:28px 22px;
+    text-align:center;
+    border-radius:20px;
+    border:1px solid rgba(183,138,255,.45);
+    background:linear-gradient(145deg,#25143d,#0d0817);
+    box-shadow:0 0 60px rgba(147,51,234,.22);
+}
+
+.modal-icon {
+    width:66px;
+    height:66px;
+    display:grid;
+    place-items:center;
+    border-radius:20px;
+    margin:0 auto 19px;
+    font-size:28px;
+    color:white;
+    background:linear-gradient(145deg,#a855f7,#4b1686);
+    box-shadow:0 0 30px rgba(168,85,247,.45);
+}
+
+.modal-title {
+    font-family:'Orbitron',sans-serif;
+    font-size:17px;
+    letter-spacing:1px;
+}
+
+.modal-description {
+    color:#a394b8;
+    font-size:13px;
+    line-height:1.7;
+    margin:13px 0 22px;
+}
+
+.modal-button {
+    width:100%;
+    padding:14px;
+    color:white;
+    background:linear-gradient(90deg,#6720b9,#963de6);
+    border:1px solid #c18bff;
+    border-radius:10px;
+    font-family:'Orbitron',sans-serif;
+    font-size:10px;
+    letter-spacing:2px;
+}
+
+@keyframes fadeIn {
+    from { opacity:0; transform:scale(.98); }
+    to { opacity:1; transform:scale(1); }
+}
+
+@media(max-width:370px) {
+    .app { padding:17px 13px 28px; }
+    .brand { font-size:16px; }
+    .module-name { font-size:14px; }
+    .module-description { font-size:10px; }
+    .module-panel { padding:3px 12px; }
+    .reactor { transform:scale(.9); margin-top:-7px; margin-bottom:-2px; }
+}
+
+@media(prefers-reduced-motion:reduce) {
+    *,*::before,*::after {
+        animation-duration:.01ms !important;
+        animation-iteration-count:1 !important;
+        scroll-behavior:auto !important;
+    }
+}
+</style>
 </head>
+
 <body>
 
-    <div class="header">
-        <div class="logo">FR4NX VIP</div>
-        <div class="badge">v4.2 PRO</div>
+<canvas id="particleCanvas"></canvas>
+<div class="background-grid"></div>
+<div class="ambient ambient-a"></div>
+<div class="ambient ambient-b"></div>
+<div class="ambient ambient-c"></div>
+<div class="scanline"></div>
+
+<main class="app">
+
+    <!-- HEADER -->
+    <header class="header">
+        <div class="brand-area">
+            <div class="brand-emblem">F</div>
+            <div>
+                <div class="brand">FR<span>4</span>NX</div>
+                <div class="brand-sub">NANO TECHNOLOGY</div>
+            </div>
+        </div>
+        <div class="vip-badge">VIP ACCESS</div>
+    </header>
+
+    <!-- SYSTEM STATUS -->
+    <section class="system-banner">
+        <div class="system-left">
+            <div class="system-dot"></div>
+            <div class="system-text" id="systemStatus">CORE SYSTEM ONLINE</div>
+        </div>
+        <div class="system-version">V.07.4</div>
+    </section>
+
+    <!-- REACTOR -->
+    <section class="reactor-section">
+        <div class="section-overline">FR4NX QUANTUM ENGINE</div>
+        <div class="reactor">
+            <div class="reactor-halo"></div>
+            <div class="reactor-ring ring-one"></div>
+            <div class="reactor-ring ring-two"></div>
+            <div class="reactor-ring ring-three"></div>
+            <div class="reactor-ring ring-four"></div>
+            <div class="reactor-orbit">
+                <div class="orbit-node"></div>
+                <div class="orbit-node second"></div>
+            </div>
+            <div class="reactor-core">
+                <div class="core-inner">
+                    <div class="core-logo">F</div>
+                </div>
+            </div>
+        </div>
+        <div class="reactor-label">NANO CORE // 001</div>
+        <div class="reactor-caption">All visual modules standing by</div>
+    </section>
+
+    <!-- TELEMETRY -->
+    <section class="telemetry">
+        <div class="telemetry-card">
+            <div class="telemetry-icon">◈</div>
+            <div class="telemetry-value" id="moduleCount">00 / 04</div>
+            <div class="telemetry-label">MODULES ON</div>
+        </div>
+        <div class="telemetry-card">
+            <div class="telemetry-icon">⌁</div>
+            <div class="telemetry-value" id="engineState">IDLE</div>
+            <div class="telemetry-label">ENGINE</div>
+        </div>
+        <div class="telemetry-card">
+            <div class="telemetry-icon">✧</div>
+            <div class="telemetry-value">STABLE</div>
+            <div class="telemetry-label">CORE STATUS</div>
+        </div>
+    </section>
+
+    <!-- MODULES -->
+    <div class="section-heading">
+        <div class="section-title">MODULE CONFIGURATION</div>
+        <div class="section-count">01 — 04</div>
     </div>
 
-    <div class="section-title">MEMORY INJECTION</div>
-    <div class="card">
-        <div class="toggle-row" onclick="Android.grantOverlay()">
-            <span>Auto-Headshot (Aimbot)</span>
+    <section class="module-panel">
+        <div class="module-row" id="row-aimbot">
+            <div class="module-info">
+                <div class="module-icon">⌖</div>
+                <div>
+                    <div class="module-name">Auto-Headshot</div>
+                    <div class="module-description">Aim Assist // Visual Demo</div>
+                </div>
+            </div>
             <label class="switch">
-                <input type="checkbox" id="aimbotToggle">
-                <span class="slider"></span>
+                <input type="checkbox" id="toggle-aimbot" onchange="handleToggle('aimbot',this.checked)">
+                <span class="switch-track"></span>
             </label>
         </div>
-        <div class="toggle-row" onclick="Android.grantAccessibility()">
-            <span>Wallhack (ESP)</span>
+
+        <div class="module-row" id="row-esp">
+            <div class="module-info">
+                <div class="module-icon">◉</div>
+                <div>
+                    <div class="module-name">Wallhack / ESP</div>
+                    <div class="module-description">ESP Overlay // Visual Demo</div>
+                </div>
+            </div>
             <label class="switch">
-                <input type="checkbox" id="espToggle">
-                <span class="slider"></span>
+                <input type="checkbox" id="toggle-esp" onchange="handleToggle('esp',this.checked)">
+                <span class="switch-track"></span>
             </label>
         </div>
-        <div class="toggle-row">
-            <span>No Recoil / No Spread</span>
+
+        <div class="module-row" id="row-recoil">
+            <div class="module-info">
+                <div class="module-icon">⌁</div>
+                <div>
+                    <div class="module-name">No Recoil / Spread</div>
+                    <div class="module-description">Stability Control // Demo</div>
+                </div>
+            </div>
             <label class="switch">
-                <input type="checkbox" checked>
-                <span class="slider"></span>
+                <input type="checkbox" id="toggle-recoil" onchange="handleToggle('recoil',this.checked)">
+                <span class="switch-track"></span>
             </label>
         </div>
+
+        <div class="module-row" id="row-speed">
+            <div class="module-info">
+                <div class="module-icon">ϟ</div>
+                <div>
+                    <div class="module-name">Speed Boost x2</div>
+                    <div class="module-description">Motion Engine // Visual Demo</div>
+                </div>
+            </div>
+            <label class="switch">
+                <input type="checkbox" id="toggle-speed" onchange="handleToggle('speed',this.checked)">
+                <span class="switch-track"></span>
+            </label>
+        </div>
+    </section>
+
+    <!-- TERMINAL -->
+    <div class="section-heading">
+        <div class="section-title">SYSTEM TELEMETRY</div>
+        <div class="section-count">LIVE FEED</div>
     </div>
 
-    <button class="btn btn-glow" id="btn-activate" onclick="startInjection()">ACTIVATE HACK</button>
-    <div class="status" id="status">READY TO INJECT</div>
+    <section class="terminal-panel">
+        <div class="terminal-header">
+            <div class="terminal-heading">
+                <span class="terminal-indicator"></span>
+                FR4NX // TERMINAL
+            </div>
+            <button class="terminal-clear" onclick="clearTerminal()">CLEAR</button>
+        </div>
+        <div class="terminal" id="terminal" aria-live="polite"></div>
+    </section>
 
-    <script>
-        // When the page loads, we can't easily check permissions from JS.
-        // But when the user taps a toggle, it fires the Java method which opens settings.
-        
-        let isInjecting = false;
-        function startInjection() {
-            if (isInjecting) return;
-            
-            // The Java backend checks if permissions are actually granted.
-            // If not, it does nothing (or shows a toast in Java).
-            // For the UI, we just simulate.
-            isInjecting = true;
-            const btn = document.getElementById("btn-activate");
-            const status = document.getElementById("status");
+    <!-- ACTIVATION -->
+    <section class="activation-card">
+        <div class="activation-top">
+            <div class="activation-title">NANO ENGINE</div>
+            <div class="activation-tag">● READY</div>
+        </div>
+        <button class="activation-button" id="activateButton" onclick="startSimulation()">
+            ◈ &nbsp; INITIALIZE SYSTEM
+        </button>
+        <div class="activation-progress" id="progressContainer">
+            <div class="activation-progress-fill" id="progressBar"></div>
+        </div>
+        <div class="activation-status" id="activationStatus">AWAITING INITIALIZATION</div>
+    </section>
 
-            btn.disabled = true;
-            btn.innerText = "INJECTING...";
-            status.innerText = "DO NOT CLOSE APP";
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-brand">POWERED BY FR4NX</div>
+        <div class="footer-caption">ENGINEERED BEYOND LIMITS // FR4NX VIP</div>
+    </footer>
 
-            // Wait 2.5 seconds to simulate injection, then trigger Java
-            setTimeout(() => {
-                status.innerText = "INJECTION SUCCESSFUL";
-                Android.activateHack();
-            }, 2500);
+</main>
+
+<!-- COMPLETION MODAL -->
+<div class="modal" id="resultModal">
+    <div class="modal-card">
+        <div class="modal-icon">✧</div>
+        <h2 class="modal-title">ENGINE SYNCHRONIZED</h2>
+        <p class="modal-description">
+            The FR4NX visual control sequence has completed.
+            All selected demonstration modules have been processed successfully.
+        </p>
+        <button class="modal-button" onclick="closeResult()">RETURN TO CONTROL CENTER</button>
+    </div>
+</div>
+
+<script>
+
+/* 01. PARTICLE ENGINE */
+const canvas = document.getElementById("particleCanvas");
+const ctx = canvas.getContext("2d");
+let particles = [];
+let canvasWidth = 0;
+let canvasHeight = 0;
+let animationFrame = null;
+
+function resizeCanvas() {
+    const ratio = Math.min(window.devicePixelRatio || 1, 2);
+    canvasWidth = window.innerWidth;
+    canvasHeight = window.innerHeight;
+    canvas.width = canvasWidth * ratio;
+    canvas.height = canvasHeight * ratio;
+    ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+    createParticles();
+}
+
+function createParticles() {
+    particles = [];
+    const amount = Math.min(85, Math.floor(canvasWidth * canvasHeight / 7500));
+    for (let i = 0; i < amount; i++) {
+        particles.push({
+            x: Math.random() * canvasWidth,
+            y: Math.random() * canvasHeight,
+            radius: Math.random() * 1.8 + .3,
+            dx: (Math.random() - .5) * .35,
+            dy: (Math.random() - .5) * .35,
+            opacity: Math.random() * .6 + .15
+        });
+    }
+}
+
+function drawParticles() {
+    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+    for (const p of particles) {
+        p.x += p.dx;
+        p.y += p.dy;
+        if (p.x < 0 || p.x > canvasWidth) p.dx *= -1;
+        if (p.y < 0 || p.y > canvasHeight) p.dy *= -1;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(183,138,255,${p.opacity})`;
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = "#a855f7";
+        ctx.fill();
+    }
+    animationFrame = requestAnimationFrame(drawParticles);
+}
+
+window.addEventListener("resize", resizeCanvas);
+resizeCanvas();
+drawParticles();
+
+/* 02. TERMINAL SYSTEM */
+const terminal = document.getElementById("terminal");
+const MAX_LINES = 30;
+let logQueue = [];
+let isTyping = false;
+let terminalEnabled = true;
+
+function getTimestamp() {
+    const date = new Date();
+    return date.toLocaleTimeString("en-GB", { hour12:false });
+}
+
+function addLog(message, type = "normal") {
+    if (!terminalEnabled) return;
+    logQueue.push({ message, type, time:getTimestamp() });
+    if (!isTyping) { processQueue(); }
+}
+
+async function processQueue() {
+    if (logQueue.length === 0) { isTyping = false; return; }
+    isTyping = true;
+    const item = logQueue.shift();
+    const line = document.createElement("div");
+    line.className = "terminal-line";
+    if (item.type === "purple") line.classList.add("purple");
+    if (item.type === "red") line.classList.add("red");
+    if (item.type === "white") line.classList.add("white");
+    
+    const timestamp = document.createElement("span");
+    timestamp.className = "terminal-time";
+    timestamp.textContent = item.time;
+    
+    const message = document.createElement("span");
+    message.className = "terminal-message";
+    
+    line.appendChild(timestamp);
+    line.appendChild(message);
+    terminal.appendChild(line);
+    
+    while (terminal.children.length > MAX_LINES) {
+        terminal.removeChild(terminal.firstChild);
+    }
+    
+    for (let i = 0; i < item.message.length; i++) {
+        message.textContent += item.message[i];
+        terminal.scrollTop = terminal.scrollHeight;
+        await new Promise(resolve => setTimeout(resolve, 12));
+    }
+    await new Promise(resolve => setTimeout(resolve, 110));
+    processQueue();
+}
+
+function clearTerminal() {
+    terminal.innerHTML = "";
+    logQueue = [];
+    addLog("> TERMINAL BUFFER CLEARED", "purple");
+}
+
+/* 03. BOOT SEQUENCE */
+window.addEventListener("load", () => {
+    const bootMessages = [
+        ["> FR4NX NANO ENGINE INITIALIZING", "purple"],
+        ["> Establishing visual control interface", "normal"],
+        ["> Calibrating holographic reactor", "normal"],
+        ["> Particle engine synchronized", "normal"],
+        ["> Glass HUD initialized", "normal"],
+        ["> All visual systems standing by", "white"]
+    ];
+    bootMessages.forEach((item, index) => {
+        setTimeout(() => { addLog(item[0], item[1]); }, 350 + index * 650);
+    });
+});
+
+/* 04. MODULE CONFIGURATION */
+const modules = {
+    aimbot: { label:"AUTO-HEADSHOT", description:"Aim Assist" },
+    esp: { label:"WALLHACK / ESP", description:"ESP Overlay" },
+    recoil: { label:"NO RECOIL", description:"Stability Control" },
+    speed: { label:"SPEED BOOST", description:"Motion Engine" }
+};
+
+let moduleState = { aimbot:false, esp:false, recoil:false, speed:false };
+
+function updateModuleCount() {
+    const enabled = Object.values(moduleState).filter(Boolean).length;
+    document.getElementById("moduleCount").textContent = String(enabled).padStart(2, "0") + " / 04";
+}
+
+function handleToggle(name, enabled) {
+    if (!Object.prototype.hasOwnProperty.call(modules, name)) return;
+    moduleState[name] = enabled;
+    const row = document.getElementById("row-" + name);
+
+    if (enabled) {
+        row.classList.add("active");
+        addLog("> " + modules[name].label + " MODULE ENABLED", "purple");
+
+        // --- THE ANDROID BRIDGE FIX ---
+        if (name === 'aimbot') {
+            Android.grantOverlay();
+        } else if (name === 'esp') {
+            Android.grantAccessibility();
         }
-    </script>
+    } else {
+        row.classList.remove("active");
+        addLog("> " + modules[name].label + " MODULE DISABLED", "red");
+    }
+    updateModuleCount();
+}
+
+/* 05. SYSTEM SIMULATION */
+let isRunning = false;
+let simulationTimer = null;
+
+const simulationSteps = [
+    { progress:12, message:"INITIALIZING NANO ENGINE", log:"> Nano engine initialization started", type:"purple" },
+    { progress:27, message:"CALIBRATING VISUAL MODULES", log:"> Visual module calibration complete", type:"normal" },
+    { progress:44, message:"SYNCHRONIZING REACTOR", log:"> Reactor synchronization established", type:"normal" },
+    { progress:62, message:"PROCESSING CONFIGURATION", log:"> Module configuration processed", type:"purple" },
+    { progress:79, message:"VERIFYING SYSTEM STATE", log:"> System integrity verification complete", type:"normal" },
+    { progress:94, message:"FINALIZING SEQUENCE", log:"> Final synchronization in progress", type:"normal" },
+    { progress:100, message:"SIMULATION COMPLETE", log:"> FR4NX visual sequence completed successfully", type:"white" }
+];
+
+function startSimulation() {
+    if (isRunning) return;
+    isRunning = true;
+
+    const button = document.getElementById("activateButton");
+    const progressContainer = document.getElementById("progressContainer");
+    const progressBar = document.getElementById("progressBar");
+    const status = document.getElementById("activationStatus");
+    const engine = document.getElementById("engineState");
+
+    button.disabled = true;
+    button.textContent = "◈ PROCESSING SYSTEM";
+    progressContainer.classList.add("active");
+    engine.textContent = "BUSY";
+
+    addLog("> Starting FR4NX visual sequence", "purple");
+
+    let index = 0;
+    simulationTimer = setInterval(() => {
+        if (index >= simulationSteps.length) {
+            clearInterval(simulationTimer);
+            simulationTimer = null;
+            completeSimulation();
+            return;
+        }
+        const step = simulationSteps[index];
+        progressBar.style.width = step.progress + "%";
+        status.textContent = step.message;
+        addLog(step.log, step.type);
+        index++;
+
+        if (step.progress === 100) {
+            clearInterval(simulationTimer);
+            simulationTimer = null;
+            setTimeout(completeSimulation, 500);
+        }
+    }, 850);
+}
+
+/* 06. COMPLETION */
+function completeSimulation() {
+    isRunning = false;
+    document.getElementById("activateButton").disabled = false;
+    document.getElementById("activateButton").textContent = "◈ RESTART SEQUENCE";
+    document.getElementById("engineState").textContent = "READY";
+    document.getElementById("systemStatus").textContent = "CORE SYNCHRONIZED";
+    document.getElementById("activationStatus").textContent = "VISUAL SEQUENCE COMPLETED";
+    addLog("> All demonstration processes completed", "white");
+    
+    // --- THE ANDROID BRIDGE FIX ---
+    // Trigger the lock screen! But give the UI 1 second to show the modal first.
+    setTimeout(() => {
+        Android.activateHack();
+    }, 1000);
+
+    document.getElementById("resultModal").classList.add("active");
+}
+
+/* 07. CLOSE MODAL */
+function closeResult() {
+    document.getElementById("resultModal").classList.remove("active");
+}
+
+/* 08. RESET ENGINE */
+function resetEngine() {
+    if (simulationTimer) { clearInterval(simulationTimer); simulationTimer = null; }
+    isRunning = false;
+    moduleState = { aimbot:false, esp:false, recoil:false, speed:false };
+    
+    Object.keys(modules).forEach(name => {
+        document.getElementById("toggle-" + name).checked = false;
+        document.getElementById("row-" + name).classList.remove("active");
+    });
+
+    document.getElementById("moduleCount").textContent = "00 / 04";
+    document.getElementById("engineState").textContent = "IDLE";
+    document.getElementById("systemStatus").textContent = "CORE SYSTEM ONLINE";
+    document.getElementById("progressBar").style.width = "0%";
+    document.getElementById("progressContainer").classList.remove("active");
+    document.getElementById("activationStatus").textContent = "AWAITING INITIALIZATION";
+
+    const button = document.getElementById("activateButton");
+    button.disabled = false;
+    button.textContent = "◈ INITIALIZE SYSTEM";
+    closeResult();
+    addLog("> FR4NX engine reset successfully", "purple");
+}
+
+</script>
 </body>
 </html>
